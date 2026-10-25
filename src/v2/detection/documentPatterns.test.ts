@@ -178,3 +178,43 @@ it.each(['4111 111111111112', '4111 1111 1111 1111 1234', '1234 4111 1111 1111 1
     const found = await documentPatternDetector.detect(input([value]));
     expect(found.some(f => f.label === 'Possible payment card number')).toBe(false);
   });
+
+describe('screenshot field layouts', () => {
+  it('reads standalone passenger labels and financial screenshot fields', async () => {
+    const findings = await documentPatternDetector.detect(input([
+      'Passenger', 'ALEX MORGAN', 'Account ending eeee 4821', 'Balance $860.25',
+      'From', 'Alex Morgan', 'To', 'Taylor Chen', 'Reference: APT-482719',
+    ]));
+    for (const value of ['ALEX MORGAN', 'eeee 4821', '$860.25', 'Alex Morgan', 'Taylor Chen', 'APT-482719'])
+      expect(findings.some(f => f.value === value), value).toBe(true);
+  });
+  it('finds the value under a label despite an intervening second column', async () => {
+    const data = input(['Tracking number', '9400 1234 5678 9012 3456 78']);
+    (data.ocr!.words as import('../../types').OcrWord[]).push({id:'other-column',lineId:'other',text:'Out for delivery',confidence:0.95,
+      box:{x:1500,y:30,width:250,height:24}});
+    const findings = await documentPatternDetector.detect(data);
+    expect(findings.some(f=>f.value==='9400 1234 5678 9012 3456 78')).toBe(true);
+    expect(findings.some(f=>f.value==='Out for delivery')).toBe(false);
+  });
+  it('does not merge a recipient with a distant address column', async () => {
+    const data = input(['Recipient: Morgan Lee']);
+    (data.ocr!.words as import('../../types').OcrWord[]).push({id:'other-column',lineId:'other',text:'Deliver to',confidence:0.95,
+      box:{x:1500,y:20,width:160,height:24}});
+    const findings = await documentPatternDetector.detect(data);
+    expect(findings.some(f=>f.value==='Morgan Lee')).toBe(true);
+    expect(findings.some(f=>f.value?.includes('Lee Deliver'))).toBe(false);
+  });
+  it('covers unit and locality below an unlabeled street, stopping before prose', async () => {
+    const findings = await documentPatternDetector.detect(input(['42 Sample Lane', 'Apt 6, Demo City', 'Dinner at seven?']));
+    expect(findings.some(f=>f.value==='42 Sample Lane Apt 6, Demo City' && f.boxes?.length===7)).toBe(true);
+    expect(findings.some(f=>f.value?.includes('Dinner'))).toBe(false);
+  });
+  it('keeps a local part split by OCR punctuation spacing', async () => {
+    const findings = await documentPatternDetector.detect(input(['Email me at alex. morgan@example.test']));
+    expect(findings.some(f=>f.value==='alex. morgan@example.test')).toBe(true);
+  });
+  it('does not treat delivery status as a tracking number', async () => {
+    expect((await documentPatternDetector.detect(input(['Tracking number', 'Out for delivery'])))
+      .some(f=>f.label.includes('tracking'))).toBe(false);
+  });
+});

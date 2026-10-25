@@ -10,11 +10,15 @@ const rule = (key: string, label: string, category: string, pattern: RegExp, val
 
 /** Explicit labels only: document families do not imply an identity, diagnosis or secret. */
 export const extendedMaterialRules: readonly DocumentRule[] = [
-  { ...rule('card-expiry', 'Card expiry date', 'financial_information', /\b(?:valid\s*(?:thru|through)|(?:credit|debit|payment)\s*card\s*(?:expiry|expiration))(?:\s*date)?\b/gi, expiryDatePattern), accept: validExpiryDate },
-  { ...rule('expiry-date', 'Expiry date', 'personal_identity', /\b(?:expiry|expiration|expires|valid\s*(?:until|to))(?:\s*date)?\b|有\s*效\s*期(?:\s*限)?|到\s*期\s*日/gi, expiryDatePattern), accept: validExpiryDate },
+  { ...rule('card-expiry', 'Card expiry date', 'financial_information', /\b(?:valid\s*(?:thru|through)|(?:credit|debit|payment)\s*card\s*(?:expiry|expiration))(?:\s*date)?(?=\b|\d)/gi, expiryDatePattern), accept: validExpiryDate },
+  { ...rule('expiry-date', 'Expiry date', 'personal_identity', /\b(?:expiry|expiration|expires|valid\s*(?:until|to))(?:\s*date)?(?=\b|\d)|有\s*效\s*期(?:\s*限)?|到\s*期\s*日/gi, expiryDatePattern), accept: validExpiryDate },
   rule('card-number', 'Payment card number', 'financial_information', /\b(?:card\s*(?:number|no\.?|#)|pan)(?=\s*[:：#=])|卡\s*号/gi, /^[\d*Xx•][\d *Xx•-]{7,30}/),
   rule('card-owner', 'Cardholder name', 'personal_identity', /\b(?:cardholder|name\s*on\s*card|account\s*holder)(?:\s*name)?\b|户\s*名|开\s*户\s*人/gi),
   rule('bank-account', 'Bank account details', 'financial_information', /\b(?:(?:bank|checking|savings)\s*account(?:\s*(?:number|no\.?))?|account\s*(?:number|no\.?))\b|账\s*户\s*号\s*码/gi, id),
+  rule('account-ending', 'Account ending digits', 'financial_information', /\baccount\s*ending\b/gi, /^(?:[*Xx•e●]\s*)*\d{4}\b/),
+  rule('transfer-person', 'Transfer participant', 'personal_identity', /^\s*(?:from|to)\s*$/gi, identityText),
+  rule('reference-code', 'Reference code', 'transactions_purchases', /\breference(?=\s*[:：])/gi, /^[A-Z]{2,8}-\d{4,20}\b/i),
+  rule('shared-person', 'Location sharing recipient', 'personal_identity', /\bshared\s*with(?=\s*[:：])/gi, identityText),
   rule('bank-branch', 'Bank branch or transfer code', 'financial_information', /\b(?:bsb|transit\s*(?:number|no\.?)|institution\s*(?:number|no\.?)|ifsc|branch\s*code|clabe)\b|联\s*行\s*号|开\s*户\s*行/gi, id),
   rule('financial-record', 'Financial record', 'financial_information', /\b(?:credit\s*limit|credit\s*score|loan\s*balance|mortgage\s*balance|investment\s*account|portfolio\s*value|taxable\s*income)\b|贷\s*款\s*余\s*额|授\s*信\s*额\s*度|征\s*信\s*评\s*分/gi),
   rule('document-number', 'Identity document number', 'government_identification', /\b(?:document\s*(?:number|no\.?)|id\s*(?:number|no\.?)|personal\s*(?:number|no\.?))\b|证\s*件\s*号(?:\s*码)?/gi, id),
@@ -36,7 +40,7 @@ export const extendedMaterialRules: readonly DocumentRule[] = [
   rule('shipping-person', 'Shipping or billing details', 'transactions_purchases', /\b(?:ship\s*to|bill\s*to|sold\s*to|consignee|consignor)\b|寄\s*件\s*人|收\s*货\s*人|付\s*款\s*人/gi),
   rule('order-reference', 'Order or transaction reference', 'transactions_purchases', /\b(?:transaction|transfer|payment|order|purchase)\s*(?:reference|ref\.?|id|number|no\.?|#)\b|交\s*易\s*号|流\s*水\s*号|支\s*付\s*单\s*号|订\s*单\s*号/gi, id),
   rule('membership', 'Membership or loyalty identifier', 'internet_identities', /\b(?:member|membership|loyalty|frequent\s*flyer|customer|client)\s*(?:id|number|no\.?)\b|会\s*员\s*号|客\s*户\s*号/gi, id),
-  rule('travel-name', 'Passenger or guest details', 'movement_travel', /\b(?:passenger|traveller|traveler|guest)(?:\s*name)?(?=\s*[:：])|旅\s*客\s*姓\s*名|乘\s*机\s*人/gi),
+  rule('travel-name', 'Passenger or guest details', 'movement_travel', /\b(?:passenger|traveller|traveler|guest)(?:\s*name)?(?=\s*[:：]|\s*$)|旅\s*客\s*姓\s*名|乘\s*机\s*人/gi),
   rule('travel-schedule', 'Travel schedule or seat', 'movement_travel', /\b(?:flight\s*(?:number|no\.?)|seat\s*(?:number|no\.?)|boarding\s*(?:time|group)|room\s*number|check[- ]?in\s*code)\b|航\s*班\s*号|座\s*位\s*号|房\s*间\s*号/gi, id),
   rule('medical-measurement', 'Health measurement or report', 'health_medical', /\b(?:blood\s*(?:type|pressure|group)|lab\s*result|specimen\s*(?:id|number)|accession\s*(?:id|number)|hiv\s*status|pregnancy\s*test|mental\s*health|genetic\s*result)\b|血\s*型|血\s*压|标\s*本\s*号|检\s*查\s*报\s*告|遗\s*传\s*检\s*测/gi),
   rule('medical-benefit', 'Health coverage details', 'insurance_benefits', /\b(?:medicare|medicaid|beneficiary|subscriber|group)\s*(?:id|number|no\.?)\b|医\s*保\s*卡\s*号|参\s*保\s*号/gi, id),

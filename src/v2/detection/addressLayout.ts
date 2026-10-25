@@ -50,7 +50,7 @@ export function addressContinuation(lines: readonly LocatedLine[], first: readon
   return result;
 }
 
-function isAddressContinuation(value: string): boolean {
+export function isAddressContinuation(value: string): boolean {
   const compact = value.replace(/\s/g, '');
   if (!value || value.length > 180 || /[:：@]/.test(value) || /\b(?:thank|please|total|balance|invoice|customer|payment|signature|issued|valid|expires|confidential|example only|do not)\b/i.test(value)) return false;
   if (/\p{Script=Han}/u.test(value))

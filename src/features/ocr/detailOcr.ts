@@ -21,7 +21,7 @@ function overlap(a:PixelRect,b:PixelRect){
 }
 
 /** Merge only actual OCR words. Spatial indexing bounds duplicate matching on dense documents. */
-export function mergeDetailWords(base:readonly OcrWord[], detail:readonly OcrWord[], layout?:{rotation:OcrRotation;width:number;height:number}):OcrWord[]{
+export function mergeDetailWords(base:readonly OcrWord[], detail:readonly OcrWord[], layout?:{rotation:OcrRotation;width:number;height:number}, minimumConfidence=0.65):OcrWord[]{
   const words=[...base], active=new Set<number>(), grid=new Map<string,Set<number>>();
   const cells=(box:PixelRect)=>{
     const keys:string[]=[];
@@ -34,11 +34,15 @@ export function mergeDetailWords(base:readonly OcrWord[], detail:readonly OcrWor
   }};
   words.forEach(index);
   for(const word of detail){
-    if(!Number.isFinite(word.confidence)||word.confidence<0.65||!word.text.trim())continue;
+    if(!Number.isFinite(word.confidence)||word.confidence<minimumConfidence||!word.text.trim())continue;
     const possible=new Set(cells(word.box).flatMap(key=>[...(grid.get(key)??[])]));
     const matching=[...possible].filter(i=>active.has(i)&&overlap(word.box,words[i]!.box)>0.6);
     if(matching.length){
       const previous=matching.map(i=>words[i]!).sort((a,b)=>a.box.x-b.box.x);
+      // A high-confidence fragment must not erase an entire date, email or ID
+      // that the other pass grouped into a single larger word.
+      if (previous.some(existing => word.box.width < existing.box.width * 0.9 &&
+        normalized(existing.text) !== normalized(word.text))) continue;
       const confidence=previous.reduce((sum,w)=>sum+w.confidence,0)/previous.length;
       const same=normalized(previous.map(w=>w.text).join(''))===normalized(word.text);
       if(!(same&&word.confidence>=confidence-0.05)&&!(word.confidence>=0.85&&word.confidence>=confidence-0.05))continue;
@@ -56,7 +60,17 @@ export function readingOrder(words:readonly OcrWord[],layout?:{rotation:OcrRotat
     if(row)row.push(item);else rows.push([item]);
   }
   let id=0;
-  return rows.flatMap((row,line)=>row.sort((a,b)=>a.box.x-b.box.x).map(({word})=>({...word,id:`word-${id++}`,lineId:`line-${line}`})));
+  // A shared baseline does not make separate UI columns one text line.
+  const runs = rows.flatMap(row => {
+    const result: typeof rows = [];
+    for (const item of row.sort((a,b)=>a.box.x-b.box.x)) {
+      const previous = result.at(-1)?.at(-1);
+      if (!previous || item.box.x - previous.box.x - previous.box.width > Math.max(item.box.height, previous.box.height) * 4) result.push([]);
+      result.at(-1)!.push(item);
+    }
+    return result;
+  });
+  return runs.flatMap((row,line)=>row.map(({word})=>({...word,id:`word-${id++}`,lineId:`line-${line}`})));
 }
 export function wordsAsText(words:readonly OcrWord[]):string{
   let previous='',text='';

@@ -119,3 +119,33 @@ test('visual model failure preserves text findings and reports incomplete inspec
   await expect(page.getByRole('article', { name: /Bank Account Number/i }).first()).toBeVisible({ timeout: 60000 });
   await expect(page.getByRole('complementary', { name: 'Inspection coverage', exact: true })).toContainText('Browser-local face regions could not complete');
 });
+
+test('screenshot OCR retains identifiers, adjacent columns and standalone labels together', async ({page}) => {
+  test.setTimeout(120000);
+  await page.goto('/');
+  const result = await page.evaluate(async () => {
+    const canvas = document.createElement('canvas'); canvas.width=1400; canvas.height=1000;
+    const ctx=canvas.getContext('2d')!;ctx.fillStyle='white';ctx.fillRect(0,0,1400,1000);ctx.fillStyle='black';
+    ctx.font='30px Arial';
+    for(const [text,x,y] of [
+      ['FICTIONAL SCREENSHOT',60,60],['Tracking number',60,160],['Out for delivery',950,165],
+      ['9400 1234 5678 9012 3456 78',60,210],['Passenger',60,320],['ALEX MORGAN',60,365],
+      ['Phone: +1 202-555-0186',60,460],['17 Example Avenue',850,460],['Unit 204, Demo City',850,505],
+      ['Email: alex.morgan@example.test',60,620],['Account ending **** 4821',60,730],['Balance $860.25',60,820],
+    ] as const) ctx.fillText(text,x,y);
+    const blob=await new Promise<Blob>(resolve=>canvas.toBlob(b=>resolve(b!),'image/png'));
+    const url=URL.createObjectURL(blob);
+    try {
+      const {scanImageV2}=await import('/src/v2/detection/scanImageV2.ts');
+      const {detectUniversalPrivacy}=await import('/src/v2/detection/detectUniversalPrivacy.ts');
+      const image={id:'fictional-screenshot',width:1400,height:1000,file:new File([blob],'fictional.png',{type:'image/png'}),previewUrl:url,mimeType:'image/png' as const};
+      const ocr=await scanImageV2(image,()=>{},new AbortController().signal);
+      const detected=await detectUniversalPrivacy({imageId:image.id,imageWidth:1400,imageHeight:1000,ocr});
+      return detected.findings.map(f=>({value:f.value,boxes:f.boxes}));
+    }finally{URL.revokeObjectURL(url);}
+  });
+  for(const value of ['9400 1234 5678 9012 3456 78','ALEX MORGAN','alex.morgan@example.test','4821','$860.25'])
+    expect(result.some(f=>f.value?.includes(value)),value).toBe(true);
+  expect(result.some(f=>f.value?.includes('17 Example Avenue Unit 204, Demo City'))).toBe(true);
+  expect(result.some(f=>f.value?.includes('0186 17'))).toBe(false);
+});
