@@ -38,3 +38,20 @@ describe('native detail OCR',()=>{
     expect(completeDetailWord(word('partial',1510,10,0.9,90),{x:0,y:0,width:1600,height:1000},4000,1000)).toBe(false);
   });
 });
+
+it('keeps same-baseline screenshot columns on separate OCR lines', () => {
+  const result = mergeDetailWords([word('Phone:',10), word('+12025550186',120)], [word('17',600),word('Example',710)]);
+  expect(wordsAsText(result)).toBe('Phone: +12025550186\n17 Example');
+});
+
+it('does not replace a complete date with a high-confidence substring from another pass', () => {
+  const result = mergeDetailWords([word('28/02/2029',10,10,0.87,200)],
+    [word('28',10,10,0.99,35),word('/02/2029',45,10,0.96,165)]);
+  expect(result.map(w=>w.text)).toEqual(['28/02/2029']);
+});
+
+it('preserves an adjacent character whose OCR box overlaps a matching number', () => {
+  const result = mergeDetailWords([word('502',10,10,0.92,60),word('室',52,10,0.81,21)],
+    [word('502',2,10,0.92,68)]);
+  expect(result.map(w=>w.text)).toEqual(['502','室']);
+});

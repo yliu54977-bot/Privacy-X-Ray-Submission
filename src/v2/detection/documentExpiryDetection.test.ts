@@ -18,6 +18,7 @@ function input(lines: string[]): DetectionInput {
 describe('expiry detection across document contexts', () => {
   it.each([
     ['Expiry Date: 28/02/2029', '28/02/2029'],
+    ['Expiry Date28/02/2029', '28/02/2029'],
     ['Expiration: 2029-02-28', '2029-02-28'],
     ['Valid until: 2029/08', '2029/08'],
     ['有效期限：2024年1月1日至2029年12月31日', '2024年1月1日至2029年12月31日'],

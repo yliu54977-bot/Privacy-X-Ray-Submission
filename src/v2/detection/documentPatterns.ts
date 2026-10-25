@@ -1,6 +1,6 @@
 import { birthDatePattern, validBirthDate } from './documentDates';
 export { validBirthDate } from './documentDates';
-import { addressContinuation, locatedLine, type LocatedLine } from './addressLayout';
+import { addressContinuation, isAddressContinuation, locatedLine, type LocatedLine } from './addressLayout';
 import { extendedMaterialRules } from './extendedMaterialRules';
 import type { OcrWord } from '../../types';
 import type { DetectionInput, PrivacyDetector, UniversalFinding } from '../contracts';
@@ -51,8 +51,8 @@ export const documentLabelRules: readonly DocumentRule[] = [
   { id: 'card', label: 'Payment card number', categories: ['financial_information'], labelPattern: /\b(?:credit|debit|payment)\s*card\s*(?:number|no\.?)?\b|银\s*行\s*卡\s*号|信\s*用\s*卡\s*号/gi, valuePattern: /^[\d*Xx•][\d *Xx•-]{7,30}/ },
   { id: 'security-code', label: 'Card security code', categories: ['authentication_credentials','financial_information'], labelPattern: /\b(?:cvv2?|cvc2?|card\s*security\s*code)\b/gi, valuePattern: /^\d{3,4}\b/ },
   { id: 'account', label: 'Financial account identifier', categories: ['financial_information'], labelPattern: /\b(?:iban|routing\s*(?:number|no\.?)|sort\s*code|swift|bic)\b|银\s*行\s*账\s*号|收\s*款\s*账\s*户/gi, valuePattern: identifier },
-  { id: 'balance', label: 'Balance or salary', categories: ['financial_information','employment_information'], labelPattern: /\b(?:(?:account|available|closing)\s*balance|salary|net\s*pay|gross\s*pay|annual\s*income)\b|账\s*户\s*余\s*额|工\s*资|薪\s*资|年\s*收\s*入/gi, valuePattern: amount },
-  { id: 'address', label: 'Postal address', categories: ['contact_information','geographic_locations'], labelPattern: /\b(?:(?:home|residential|mailing|postal|shipping|billing|delivery|recipient)\s*)?address\b|地\s*址|住\s*址|通\s*讯\s*地\s*址/gi, valuePattern: content },
+  { id: 'balance', label: 'Balance or salary', categories: ['financial_information','employment_information'], labelPattern: /\b(?:(?:(?:account|available|closing)\s*)?balance|salary|net\s*pay|gross\s*pay|annual\s*income)\b|账\s*户\s*余\s*额|工\s*资|薪\s*资|年\s*收\s*入/gi, valuePattern: amount },
+  { id: 'address', label: 'Postal address', categories: ['contact_information','geographic_locations'], labelPattern: /\bdeliver\s*to(?=\s*[:：]|\s*$)|\b(?:(?:home|residential|mailing|postal|shipping|billing|delivery|recipient)\s*)?address\b|地\s*址|住\s*址|通\s*讯\s*地\s*址/gi, valuePattern: content },
   { id: 'birth', label: 'Birth date', categories: ['personal_identity'], labelPattern: /\b(?:dob|date\s*of\s*birth|birth\s*date)\b|出\s*生(?:\s*日\s*期)?/gi, valuePattern: birthDatePattern, accept: validBirthDate },
   { id: 'student', label: 'Academic identifier', categories: ['education_records','personal_identity'], labelPattern: /\b(?:student|candidate|enrollment|registration)\s*(?:id|number|no\.?)\b|学\s*号|考\s*生\s*号|准\s*考\s*证\s*号/gi, valuePattern: identifier },
   { id: 'grade', label: 'Academic result', categories: ['education_records'], labelPattern: /\b(?:gpa|grade|exam\s*score|student\s*result)\b|成\s*绩|绩\s*点/gi, valuePattern: content },
@@ -61,7 +61,7 @@ export const documentLabelRules: readonly DocumentRule[] = [
   { id: 'diagnosis', label: 'Health or treatment information', categories: ['health_medical'], labelPattern: /\b(?:diagnosis|medication|prescription|test\s*result|allergies|treatment)\b|诊\s*断|用\s*药|处\s*方|检\s*验\s*结\s*果|过\s*敏\s*史/gi, valuePattern: content },
   { id: 'policy', label: 'Insurance policy identifier', categories: ['insurance_benefits'], labelPattern: /\b(?:insurance\s*(?:policy|member)|policy|claim)\s*(?:id|number|no\.?)\b|保\s*单\s*号|理\s*赔\s*号/gi, valuePattern: identifier },
   { id: 'case', label: 'Legal case or contract identifier', categories: ['legal_information','contracts_records'], labelPattern: /\b(?:case|docket|contract|agreement)\s*(?:id|number|no\.?)\b|案\s*号|合\s*同\s*号/gi, valuePattern: identifier },
-  { id: 'tracking', label: 'Tracking or shipping identifier', categories: ['transactions_purchases','movement_travel'], labelPattern: /\b(?:tracking|shipment|waybill|invoice|receipt)\s*(?:id|number|no\.?)\b|快\s*递\s*单\s*号|运\s*单\s*号|发\s*票\s*号/gi, valuePattern: identifier },
+  { id: 'tracking', label: 'Tracking or shipping identifier', categories: ['transactions_purchases','movement_travel'], labelPattern: /\b(?:tracking|shipment|waybill|invoice|receipt)\s*(?:id|number|no\.?)\b|快\s*递\s*单\s*号|运\s*单\s*号|发\s*票\s*号/gi, valuePattern: identifier, accept: v => /\d/.test(v) },
   { id: 'travel', label: 'Travel booking or ticket identifier', categories: ['movement_travel'], labelPattern: /\b(?:pnr|booking\s*(?:reference|code|id)|ticket\s*(?:number|no\.?)|reservation\s*(?:code|id))\b|票\s*号|预\s*订\s*号/gi, valuePattern: identifier },
   { id: 'hotel', label: 'Travel location or schedule', categories: ['movement_travel','geographic_locations'], labelPattern: /\b(?:hotel|departure|arrival|destination|check[- ]?in|check[- ]?out)\s*(?:address|date|time)?\b|入\s*住\s*时\s*间|出\s*发\s*地|目\s*的\s*地/gi, valuePattern: content },
   { id: 'handle', label: 'Account or messaging handle', categories: ['internet_identities','communications'], labelPattern: /\b(?:username|user\s*id|account\s*handle|wechat\s*id|telegram\s*id|discord\s*id)\b|微\s*信\s*号|用\s*户\s*名|昵\s*称|账\s*号/gi, valuePattern: /^[\p{L}\p{N}@._-]{3,50}/u },
@@ -78,24 +78,26 @@ export function documentLines(input: DetectionInput): LocatedLine[] {
   const rows: OcrWord[][] = [];
   for (const word of [...(input.ocr?.words ?? [])].sort((a, b) => a.box.y - b.box.y || a.box.x - b.box.x)) {
     const row = rows.find(row => row.some(neighbor => {
-      const gap = Math.max(0, neighbor.box.x - word.box.x - word.box.width, word.box.x - neighbor.box.x - neighbor.box.width);
       const sameBaseline = Math.abs(neighbor.box.y + neighbor.box.height / 2 - word.box.y - word.box.height / 2);
-      return sameBaseline <= Math.min(word.box.height, neighbor.box.height) * 0.5 &&
-        (gap < Math.max(word.box.height, neighbor.box.height) * 4 || neighbor === row[0]);
+      return sameBaseline <= Math.min(word.box.height, neighbor.box.height) * 0.5;
     }));
     if (row) row.push(word); else rows.push([word]);
   }
-  return rows.map(row => {
-    let text = '';
-    const words = row.sort((a, b) => a.box.x - b.box.x).map(word => {
-      if (text) text += ' '; const start = text.length; text += word.text;
-      return { word, start, end: text.length };
-    }); return { text, words };
+  // Assemble complete baselines before splitting columns: shorter glyphs can
+  // arrive after their neighbors and must not split one identifier into fragments.
+  return rows.flatMap(row => {
+    const runs: OcrWord[][] = [];
+    for (const word of row.sort((a,b) => a.box.x - b.box.x)) {
+      const previous = runs.at(-1)?.at(-1);
+      if (!previous || word.box.x - previous.box.x - previous.box.width > Math.max(word.box.height, previous.box.height) * 4) runs.push([]);
+      runs.at(-1)!.push(word);
+    }
+    return runs.map(locatedLine);
   });
 }
 
 const patterns: { id: string; label: string; categories: string[]; regex: RegExp; accept?: (value: string) => boolean }[] = [
-  { id: 'email', label: 'Email address', categories: ['contact_information','internet_identities'], regex: /(?<![\w.+-])[\w.+-]+\s*@\s*[A-Z0-9-]+(?:\s*\.\s*[A-Z0-9-]+)+/gi },
+  { id: 'email', label: 'Email address', categories: ['contact_information','internet_identities'], regex: /(?<![\w.+-])[\w+-]+(?:\s*\.\s*[\w+-]+)*\s*@\s*[A-Z0-9-]+(?:\s*\.\s*[A-Z0-9-]+)+/gi },
   { id: 'phone', label: 'Phone number', categories: ['contact_information'], regex: /(?<!\d)(?:\+\d{1,3}[ .-]?(?:\(?\d{2,4}\)?[ .-]?){2,4}\d{2,4}|\(?\d{3}\)?[-. ]\d{3}[-. ]\d{4}|1[3-9]\d{9})(?!\d)/g,
     accept: v => { const n = v.replace(/\D/g, '').length; return n >= 10 && n <= 15; } },
   { id: 'card', label: 'Payment card number', categories: ['financial_information'], regex: /(?<!\d)(?<!\d[ -])\d(?:[ -]?\d){12,18}(?![ -]?\d)/g, accept: luhn },
@@ -106,6 +108,7 @@ const patterns: { id: string; label: string; categories: string[]; regex: RegExp
   { id: 'ip', label: 'IP address', categories: ['device_network_identifiers','technical_infrastructure'], regex: /(?<![\w.])(?:\d{1,3}\.){3}\d{1,3}(?![\w.])/g, accept: v => v.split('.').every(n => Number(n) <= 255) },
   { id: 'token', label: 'Service access token', categories: ['authentication_credentials'], regex: /\b(?:gh[pousr]_[A-Za-z0-9]{30,255}|github_pat_[A-Za-z0-9_]{30,255}|sk-(?:proj-)?[A-Za-z0-9_-]{20,240}|AKIA[A-Z0-9]{16})\b/g },
   { id: 'street', label: 'Street address', categories: ['contact_information','geographic_locations'], regex: /(?<!\d)\d{1,6}\s+(?:[\p{L}\d.'’–-]+\s+){0,5}(?:Street|St|Road|Rd|Avenue|Ave|Lane|Ln|Drive|Dr|Boulevard|Blvd|Court|Ct|Way)\b(?:\s+(?:Apt|Unit|Suite)\s+[A-Z0-9-]+)?/giu },
+  { id: 'social-handle', label: 'Account handle', categories: ['internet_identities'], regex: /(?<![\w.+-])@[A-Z0-9_][A-Z0-9_.]{2,29}\b/gi },
   { id: 'postal', label: 'Canadian postal code', categories: ['geographic_locations'], regex: /(?<![A-Z0-9])[ABCEGHJ-NPRSTVXY]\d[ABCEGHJ-NPRSTVWXYZ][ -]?\d[ABCEGHJ-NPRSTVWXYZ]\d(?![A-Z0-9])/gi },
   { id: 'wallet', label: 'Wallet-like address', categories: ['digital_assets','financial_information'], regex: /\b0x[A-F0-9]{40}\b/gi },
   { id: 'mrz', label: 'Passport machine-readable line', categories: ['government_identification','movement_travel'], regex: /\bP<[A-Z]{3}[A-Z<]{10,44}/g },
@@ -154,25 +157,38 @@ export const documentPatternDetector: PrivacyDetector = {
         let source = line, start = hit.end;
         let raw = line.text.slice(start, labels[i + 1]?.start ?? line.text.length);
         if (!raw.replace(/^[\s:：#=–—-]+/, '').trim()) {
-          const next = lines[rowIndex + 1];
           const labelWord = line.words.find(item => item.end > hit.start)?.word;
-          if (next && labelWord && next.words[0]!.word.box.y - labelWord.box.y <= labelWord.box.height * 3 &&
-            Math.abs(next.words[0]!.word.box.x - labelWord.box.x) <= Math.max(60, input.imageWidth * 0.06) &&
-            !documentLabelRules.some(rule => new RegExp(rule.labelPattern.source, 'i').test(next.text))) {
-            source = next; start = 0; raw = next.text;
-          }
+          const labelLast = line.words.filter(item => item.start < hit.end).at(-1)?.word;
+          const candidates = labelWord && labelLast ? lines.filter(candidate => candidate !== line)
+            .map(candidate => locatedLine(candidate.words.map(item => item.word)
+              .filter(word => word.box.x >= labelWord.box.x - labelWord.box.height * 0.7)))
+            .filter(candidate => candidate.words.length)
+            .filter(candidate => {
+              const first = candidate.words[0]!.word;
+              const below = first.box.y >= labelWord.box.y + labelWord.box.height * 0.65 &&
+                first.box.y - labelWord.box.y <= labelWord.box.height * 3 &&
+                Math.abs(first.box.x - labelWord.box.x) <= Math.max(60, input.imageWidth * 0.06);
+              const right = hit.rule.id === 'balance' && Math.abs(first.box.y + first.box.height / 2 - labelLast.box.y - labelLast.box.height / 2) <= Math.min(first.box.height, labelLast.box.height) * 0.5 &&
+                first.box.x >= labelLast.box.x + labelLast.box.width &&
+                first.box.x - labelLast.box.x - labelLast.box.width <= input.imageWidth * 0.65;
+              return (below || right) && !documentLabelRules.some(rule => new RegExp(rule.labelPattern.source, 'i').test(candidate.text));
+            }).sort((a,b) => a.words[0]!.word.box.y - b.words[0]!.word.box.y) : [];
+          const next = candidates[0];
+          if (next) { source = next; start = 0; raw = next.text; }
         }
+
         const noAbbreviation = /\bno$/i.test(line.text.slice(hit.start, hit.end));
         const prefix = (noAbbreviation ? /^[\s.:：#=–—-]+/ : /^[\s:：#=–—-]+/).exec(raw)?.[0].length ?? 0;
         // Generic labels require punctuation or an aligned value row.
-        if (source === line && prefix === 0 && !/\p{Script=Han}/u.test(line.text.slice(hit.start, hit.end))) continue;
+        const joinedExpiry = /^(?:expiry-date|card-expiry)$/.test(hit.rule.id) && /^\d/.test(raw);
+        if (source === line && prefix === 0 && !joinedExpiry && !/\p{Script=Han}/u.test(line.text.slice(hit.start, hit.end))) continue;
         const parsed = hit.rule.valuePattern.exec(raw.slice(prefix));
         if (parsed && (!hit.rule.accept || hit.rule.accept(parsed[0]))) {
           const from = start + prefix, to = from + parsed[0].trimEnd().length;
           if (hit.rule.id === 'address') {
             const selected = source.words.filter(item => item.start < to && item.end > from).map(item => item.word);
             const labelX = line.words.find(item => item.end > hit.start)?.word.box.x ?? selected[0]?.box.x ?? 0;
-            const words = addressContinuation(lines, selected, lines.indexOf(source), labelX,
+            const words = addressContinuation(lines, selected, lines.findIndex(row => row.words.some(item => item.word.id === selected[0]?.id)), labelX,
               value => documentLabelRules.some(rule => new RegExp(rule.labelPattern.source, 'i').test(value)));
             const block = locatedLine(words);
             add(hit.rule.id, hit.rule.label, hit.rule.categories, block, 0, block.text.length,
@@ -181,9 +197,24 @@ export const documentPatternDetector: PrivacyDetector = {
             `Explicit ${hit.rule.label.toLowerCase()} label with readable value text.`);
         }
       }
-      for (const pattern of patterns) for (const match of line.text.matchAll(pattern.regex))
-        if (!pattern.accept || pattern.accept(match[0])) add(pattern.id, pattern.label, pattern.categories, line,
-          match.index, match.index + match[0].length, `Matched a supported ${pattern.label.toLowerCase()} format; check the source image.`);
+      for (const pattern of patterns) for (const match of line.text.matchAll(pattern.regex)) {
+        if (pattern.accept && !pattern.accept(match[0])) continue;
+        if (pattern.id === 'street') {
+          const suffix = line.text.slice(match.index + match[0].length);
+          const inlineContinuation = /^\s*,/.test(suffix) && isAddressContinuation(suffix.replace(/^\s*,\s*/, ''));
+          const end = inlineContinuation ? line.text.length : match.index + match[0].length;
+          const selected = line.words.filter(item => item.start < end && item.end > match.index).map(item => item.word);
+          const words = addressContinuation(lines, selected, rowIndex, line.words[0]!.word.box.x,
+            value => documentLabelRules.some(rule => new RegExp(rule.labelPattern.source, 'i').test(value)));
+          if (inlineContinuation || words.length > selected.length) {
+            const block = locatedLine(words);
+            add('address', 'Postal address', pattern.categories, block, 0, block.text.length, 'Street address with adjacent aligned address lines; verify the entire block.');
+            continue;
+          }
+        }
+        add(pattern.id, pattern.label, pattern.categories, line, match.index, match.index + match[0].length,
+          `Matched a supported ${pattern.label.toLowerCase()} format; check the source image.`);
+      }
     }
     // Card layouts often print the holder and expiry without any nearby label.
     // Use a detected card number as context; never infer these from arbitrary documents.

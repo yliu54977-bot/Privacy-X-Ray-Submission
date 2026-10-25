@@ -134,8 +134,9 @@ export async function scanImage(
     let words = recognizedWords(data, image, canvas);
     const quality = (candidate: readonly OcrWord[], rotation: OcrRotation = 'none') =>
       orientationQuality(candidate, image.width, image.height, rotation);
-    if (options.adaptiveRescan && canvas.width * canvas.height <= 6_000_000 &&
-      (words.length < 4 || quality(words, selectedRotation) < 12 || meanConfidence(words) < 0.75 || hasSidewaysText(words))) {
+    // Sparse screenshot fields can be missing even when the remaining text has high confidence.
+    if (options.adaptiveRescan && canvas.width * canvas.height <= 6_000_000) {
+      const uprightPasses: OcrWord[][] = [words];
       const possibleRotation = words.length < 4 || meanConfidence(words) < 0.75 || hasSidewaysText(words);
       await worker.setParameters({ tessedit_pageseg_mode: PSM.SPARSE_TEXT });
       const attempts: { surface: HTMLCanvasElement; rotation: OcrRotation }[] =
@@ -145,6 +146,7 @@ export async function scanImage(
         if (signal.aborted) throw new Error('Scan cancelled.');
         const candidate = (await worker.recognize(attempt.surface, {}, { blocks: true, text: true })).data;
         const recognized = recognizedWords(candidate, image, attempt.surface, attempt.rotation);
+        uprightPasses.push(recognized);
         if (quality(recognized, attempt.rotation) > quality(words, selectedRotation) * 1.15) { data = candidate; words = recognized; }
       }
       if (quality(words, selectedRotation) < 12 || possibleRotation) {
@@ -165,6 +167,12 @@ export async function scanImage(
             surface.width = surface.height = 0;
           }
         }
+      }
+      // Merge complementary upright passes only after choosing orientation.
+      if (selectedRotation === 'none') {
+        // Keep weak but non-overlapping overview words for review as well;
+        // their original confidence is retained. Cropped detail passes remain stricter.
+        for (const pass of uprightPasses) words = mergeDetailWords(words, pass, undefined, 0);
       }
       await worker.setParameters({ tessedit_pageseg_mode: PSM.AUTO });
     }
@@ -198,7 +206,7 @@ export async function scanImage(
       width: image.width,
       height: image.height,
       language: languages.join('+'),
-      text: details.length ? wordsAsText(words) : data.text,
+      text: options.adaptiveRescan || details.length ? wordsAsText(words) : data.text,
       words,
     },selectedRotation);
   } finally {
