@@ -30,8 +30,10 @@ Download the ZIP for your platform from the [desktop test release](https://githu
 
 | Platform | Package | Getting started |
 | --- | --- | --- |
-| macOS · Apple Silicon | [Mac ARM64 ZIP](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/releases/download/v0.1.0-desktop-test.1/Privacy-X-Ray-0.1.0-Mac-arm64-adhoc-test.zip) | Extract the ZIP and move `Privacy X-Ray.app` to Applications. |
+| macOS 13+ · Apple M series | [Mac ARM64 ZIP](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/releases/download/v0.1.0-desktop-test.1/Privacy-X-Ray-0.1.0-Mac-arm64-adhoc-test.zip) | Extract the ZIP and move `Privacy X-Ray.app` to Applications. |
 | Windows · x64 | [Windows x64 ZIP](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/releases/download/v0.1.0-desktop-test.1/Privacy-X-Ray-0.1.0-Windows-x64-test.zip) | Extract the complete ZIP and launch `Privacy X-Ray.exe`. Keep its companion files together. |
+
+**Mac compatibility:** Use the same ARM64 ZIP for Apple M-series Macs, including Pro, Max and Ultra variants. It requires macOS 13 Ventura or later and does not support Intel Macs. The package architecture and minimum OS version have been verified; each chip/device combination has not been individually tested.
 
 The desktop packages include the application, recognition models, and PDF resources. End users do not need Node.js or an API key.
 
