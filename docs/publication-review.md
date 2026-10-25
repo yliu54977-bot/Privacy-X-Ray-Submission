@@ -2,7 +2,7 @@
 
 Reviewed on **2026-10-24 (America/Toronto)**. Baseline: `47b32aa1961716d45b16c9d9bd176e48e2f31877` in `yliu54977-bot/Privacy-X-Ray-Submission`.
 
-**Remediation status:** The code/configuration changes described below are prepared in [PR #1](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/pull/1). They are not active on `main` until that PR is merged. Local validation passed 704 application tests and 6 publication-check tests.
+**Remediation delivery:** [PR #1](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/pull/1) contains the code/configuration changes described below; its merge status records whether they are active on `main`. The security implementation passed 704 application tests, 64 browser tests and 6 publication-check tests in [CI](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/actions/runs/40157048360). The existing main-branch README is preserved unchanged at the maintainer's request.
 
 ## Conclusion
 
@@ -37,7 +37,7 @@ The six reviewed binary assets are pinned by path and SHA-256 in `scripts/check-
 | Medium | `main` was unprotected and the repository ruleset list was empty at inspection. | Owner action required: PR review, required CI, force-push/deletion restrictions and appropriate secret protection. Auditor connection has write, not admin, access. |
 | Medium | No security-header/CSP deployment configuration in this snapshot. | Documented; not changed during data-publication work. Requires a separate compatibility-tested web hardening change and deployment to the actual demo host. |
 | Low | Actions used mutable `@v4` references and checkout's default persisted credentials. | Pinned the observed upstream commits and set `persist-credentials: false`. Read-only workflow permissions retained. |
-| Low | README/checklist incorrectly described the now-public repository as private. | Corrected and linked the publication policy. |
+| Low | README/checklist described the now-public repository as private. | Checklist corrected. README preserved unchanged at the maintainer's request; its private-repository wording remains stale. |
 | Low / privacy preference | The baseline Git commit exposes a non-noreply author/committer email address. | The value is not reproduced here. Authors can use GitHub's noreply address for future commits; that does not remove existing commit metadata. No history rewrite was performed. |
 
 No confirmed critical/high-severity credential leak was identified. The priority labels above describe this review's findings, not a numerical security score.
