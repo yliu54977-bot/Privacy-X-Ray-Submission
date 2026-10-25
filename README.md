@@ -6,7 +6,7 @@ Privacy X-Ray is a local image review and redaction tool for screenshots, identi
 
 **[Try in browser](https://privacy-xray-app.vercel.app/)** · **[Download desktop preview](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/releases/tag/v0.1.0-desktop-test.2)** · **[Quick start](#quick-start)** · **[Privacy & security](#privacy--security)** · **[Development](#development)** · **[MIT license](LICENSE)**
 
-> **Project status:** Browser app plus public desktop preview, version `0.1.0-desktop-test.2`. The desktop ZIPs and hosted demo were built from public commit [`ef4a612`](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/commit/ef4a6129796cb384ef5e44eefa7157352844dbc8). This repository includes the desktop source, build scripts and native CI; no private repository is needed.
+> **Project status:** Browser app plus public desktop preview, version `0.1.0-desktop-test.2`. The desktop test.2 ZIPs were built from public commit [`ef4a612`](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/commit/ef4a6129796cb384ef5e44eefa7157352844dbc8). The hosted browser demo is updated separately from public main, including a pure CPU face fallback. This repository includes the desktop source, build scripts and native CI; no private repository is needed.
 
 ## Why Privacy X-Ray?
 
@@ -142,6 +142,7 @@ npm run desktop:test
 npx playwright install chromium
 npm run prepare:test-fixtures
 npm run test:integration
+npm run test:headless-face
 ```
 
 The desktop migration passed **718 unit/component tests, 8 desktop security tests, 7 publication-boundary tests and 64 browser acceptance tests**. See the [native build run](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/actions/runs/40161265403), [browser validation](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/actions/runs/40161265393) and [testing details](docs/testing.md). These are regression checks, not a general detection-accuracy benchmark. The browser run needed one retry after a touch-emulation assertion failed; the migration PR's identical source tree also passed all 64 checks.
@@ -169,7 +170,7 @@ The default interface uses explicit user selection. The contextual policy engine
 
 - Detection can miss or misread text, faces, codes, handwriting, signatures, or background details. A detected-item count is not proof that all private information was found.
 - Small, rotated, blurred, low-contrast, or unusual layouts can reduce recognition quality. Review the full output and add manual masks as needed.
-- Face detection may be unavailable when a browser or graphics environment cannot initialize its runtime. The hosted cloud-browser check reported this warning; native Mac and Windows face checks passed. Inspect detector warnings and manually cover missed faces.
+- The web app falls back to a bundled pure CPU face detector when MediaPipe initialization or detection fails, including environments without WebGL. CPU fallback can be slower. If both runtimes fail, inspect detector warnings and manually cover missed faces. Existing test.2 desktop downloads predate this fallback.
 - Redaction protects only the pixels you cover. Information elsewhere in the image can still reveal identity or context.
 - The current desktop release is a preview, not an independently audited or fully platform-certified product.
 

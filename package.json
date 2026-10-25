@@ -15,6 +15,7 @@
     "test:watch": "vitest",
     "prepare:ocr": "node scripts/prepare-ocr.mjs",
     "postinstall": "node scripts/prepare-ocr.mjs",
+    "test:headless-face": "playwright test --config playwright.headless.config.ts",
     "test:browser": "playwright test",
     "benchmark:ocr": "playwright test tests/v2-benchmark.spec.ts",
     "test:browser:production": "playwright test --config playwright.production.config.ts",
@@ -28,6 +29,10 @@
   },
   "dependencies": {
     "@mediapipe/tasks-vision": "0.10.32",
+    "@tensorflow-models/face-detection": "1.0.3",
+    "@tensorflow/tfjs-backend-cpu": "4.22.0",
+    "@tensorflow/tfjs-converter": "4.22.0",
+    "@tensorflow/tfjs-core": "4.22.0",
     "@tesseract.js-data/chi_sim": "1.0.0",
     "@tesseract.js-data/eng": "1.0.0",
     "jsqr": "1.4.0",

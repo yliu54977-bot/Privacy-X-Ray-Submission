@@ -113,6 +113,7 @@ test('WebP is frozen into a PNG image with stable original coordinates', async (
 test('visual model failure preserves text findings and reports incomplete inspection', async ({ page }) => {
   test.setTimeout(90000);
   await page.route('**/vision/blaze_face_short_range.tflite', route => route.abort());
+  await page.route('**/vision/face-cpu/**', route => route.abort());
   await page.goto('/?review=advanced'); await page.getByRole('button', { name: 'Try tuition sample', exact: true }).click();
   await page.getByRole('button', { name: 'Scan for Sensitive Information', exact: true }).click();
   await expect(page.getByRole('article', { name: /Bank Account Number/i }).first()).toBeVisible({ timeout: 60000 });
