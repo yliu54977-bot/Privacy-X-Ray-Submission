@@ -36,7 +36,11 @@ export function mergeDetailWords(base:readonly OcrWord[], detail:readonly OcrWor
   for(const word of detail){
     if(!Number.isFinite(word.confidence)||word.confidence<minimumConfidence||!word.text.trim())continue;
     const possible=new Set(cells(word.box).flatMap(key=>[...(grid.get(key)??[])]));
-    const matching=[...possible].filter(i=>active.has(i)&&overlap(word.box,words[i]!.box)>0.6);
+    let matching=[...possible].filter(i=>active.has(i)&&overlap(word.box,words[i]!.box)>0.6);
+    // OCR boxes may overlap neighboring glyphs. An exact textual match must
+    // not consume a different neighbor simply because its box also intersects.
+    const exact = matching.filter(i => normalized(words[i]!.text) === normalized(word.text));
+    if (exact.length) matching = exact;
     if(matching.length){
       const previous=matching.map(i=>words[i]!).sort((a,b)=>a.box.x-b.box.x);
       // A high-confidence fragment must not erase an entire date, email or ID

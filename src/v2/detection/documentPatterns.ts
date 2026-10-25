@@ -52,7 +52,7 @@ export const documentLabelRules: readonly DocumentRule[] = [
   { id: 'security-code', label: 'Card security code', categories: ['authentication_credentials','financial_information'], labelPattern: /\b(?:cvv2?|cvc2?|card\s*security\s*code)\b/gi, valuePattern: /^\d{3,4}\b/ },
   { id: 'account', label: 'Financial account identifier', categories: ['financial_information'], labelPattern: /\b(?:iban|routing\s*(?:number|no\.?)|sort\s*code|swift|bic)\b|银\s*行\s*账\s*号|收\s*款\s*账\s*户/gi, valuePattern: identifier },
   { id: 'balance', label: 'Balance or salary', categories: ['financial_information','employment_information'], labelPattern: /\b(?:(?:(?:account|available|closing)\s*)?balance|salary|net\s*pay|gross\s*pay|annual\s*income)\b|账\s*户\s*余\s*额|工\s*资|薪\s*资|年\s*收\s*入/gi, valuePattern: amount },
-  { id: 'address', label: 'Postal address', categories: ['contact_information','geographic_locations'], labelPattern: /\b(?:(?:home|residential|mailing|postal|shipping|billing|delivery|recipient)\s*)?address\b|地\s*址|住\s*址|通\s*讯\s*地\s*址/gi, valuePattern: content },
+  { id: 'address', label: 'Postal address', categories: ['contact_information','geographic_locations'], labelPattern: /\bdeliver\s*to(?=\s*[:：]|\s*$)|\b(?:(?:home|residential|mailing|postal|shipping|billing|delivery|recipient)\s*)?address\b|地\s*址|住\s*址|通\s*讯\s*地\s*址/gi, valuePattern: content },
   { id: 'birth', label: 'Birth date', categories: ['personal_identity'], labelPattern: /\b(?:dob|date\s*of\s*birth|birth\s*date)\b|出\s*生(?:\s*日\s*期)?/gi, valuePattern: birthDatePattern, accept: validBirthDate },
   { id: 'student', label: 'Academic identifier', categories: ['education_records','personal_identity'], labelPattern: /\b(?:student|candidate|enrollment|registration)\s*(?:id|number|no\.?)\b|学\s*号|考\s*生\s*号|准\s*考\s*证\s*号/gi, valuePattern: identifier },
   { id: 'grade', label: 'Academic result', categories: ['education_records'], labelPattern: /\b(?:gpa|grade|exam\s*score|student\s*result)\b|成\s*绩|绩\s*点/gi, valuePattern: content },
@@ -158,19 +158,25 @@ export const documentPatternDetector: PrivacyDetector = {
         let raw = line.text.slice(start, labels[i + 1]?.start ?? line.text.length);
         if (!raw.replace(/^[\s:：#=–—-]+/, '').trim()) {
           const labelWord = line.words.find(item => item.end > hit.start)?.word;
-          // Find the value below this label, not an unrelated intervening column.
-          const next = labelWord ? lines.slice(rowIndex + 1).find(candidate => {
-            const first = candidate.words[0]!.word;
-            return first.box.y >= labelWord.box.y + labelWord.box.height * 0.65 &&
-              first.box.y - labelWord.box.y <= labelWord.box.height * 3 &&
-              Math.abs(first.box.x - labelWord.box.x) <= Math.max(60, input.imageWidth * 0.06);
-          }) : undefined;
-          if (next && labelWord && next.words[0]!.word.box.y - labelWord.box.y <= labelWord.box.height * 3 &&
-            Math.abs(next.words[0]!.word.box.x - labelWord.box.x) <= Math.max(60, input.imageWidth * 0.06) &&
-            !documentLabelRules.some(rule => new RegExp(rule.labelPattern.source, 'i').test(next.text))) {
-            source = next; start = 0; raw = next.text;
-          }
+          const labelLast = line.words.filter(item => item.start < hit.end).at(-1)?.word;
+          const candidates = labelWord && labelLast ? lines.filter(candidate => candidate !== line)
+            .map(candidate => locatedLine(candidate.words.map(item => item.word)
+              .filter(word => word.box.x >= labelWord.box.x - labelWord.box.height * 0.7)))
+            .filter(candidate => candidate.words.length)
+            .filter(candidate => {
+              const first = candidate.words[0]!.word;
+              const below = first.box.y >= labelWord.box.y + labelWord.box.height * 0.65 &&
+                first.box.y - labelWord.box.y <= labelWord.box.height * 3 &&
+                Math.abs(first.box.x - labelWord.box.x) <= Math.max(60, input.imageWidth * 0.06);
+              const right = Math.abs(first.box.y + first.box.height / 2 - labelLast.box.y - labelLast.box.height / 2) <= Math.min(first.box.height, labelLast.box.height) * 0.5 &&
+                first.box.x >= labelLast.box.x + labelLast.box.width &&
+                first.box.x - labelLast.box.x - labelLast.box.width <= input.imageWidth * (hit.rule.id === 'balance' ? 0.65 : 0.25);
+              return (below || right) && !documentLabelRules.some(rule => new RegExp(rule.labelPattern.source, 'i').test(candidate.text));
+            }).sort((a,b) => a.words[0]!.word.box.y - b.words[0]!.word.box.y) : [];
+          const next = candidates[0];
+          if (next) { source = next; start = 0; raw = next.text; }
         }
+
         const noAbbreviation = /\bno$/i.test(line.text.slice(hit.start, hit.end));
         const prefix = (noAbbreviation ? /^[\s.:：#=–—-]+/ : /^[\s:：#=–—-]+/).exec(raw)?.[0].length ?? 0;
         // Generic labels require punctuation or an aligned value row.
@@ -182,7 +188,7 @@ export const documentPatternDetector: PrivacyDetector = {
           if (hit.rule.id === 'address') {
             const selected = source.words.filter(item => item.start < to && item.end > from).map(item => item.word);
             const labelX = line.words.find(item => item.end > hit.start)?.word.box.x ?? selected[0]?.box.x ?? 0;
-            const words = addressContinuation(lines, selected, lines.indexOf(source), labelX,
+            const words = addressContinuation(lines, selected, lines.findIndex(row => row.words.some(item => item.word.id === selected[0]?.id)), labelX,
               value => documentLabelRules.some(rule => new RegExp(rule.labelPattern.source, 'i').test(value)));
             const block = locatedLine(words);
             add(hit.rule.id, hit.rule.label, hit.rule.categories, block, 0, block.text.length,

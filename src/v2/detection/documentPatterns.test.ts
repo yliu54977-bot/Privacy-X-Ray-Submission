@@ -218,3 +218,17 @@ describe('screenshot field layouts', () => {
       .some(f=>f.label.includes('tracking'))).toBe(false);
   });
 });
+
+it('associates a right-aligned balance without merging distant columns', async () => {
+  const data = input(['Balance']);
+  const findings = await documentPatternDetector.detect({...data,ocr:{...data.ocr!,words:[...data.ocr!.words,
+    {id:'amount',lineId:'amount',text:'$860.25',confidence:0.95,box:{x:1500,y:20,width:120,height:24}}]}});
+  expect(findings.some(f=>f.value==='$860.25')).toBe(true);
+});
+
+it('finds a transfer name below its label despite a tall nearby icon', async () => {
+  const data = input(['To','Taylor Chen'],250);
+  const findings = await documentPatternDetector.detect({...data,ocr:{...data.ocr!,words:[...data.ocr!.words,
+    {id:'icon',lineId:'icon',text:'(3',confidence:0.3,box:{x:160,y:10,width:55,height:100}}]}});
+  expect(findings.some(f=>f.value==='Taylor Chen')).toBe(true);
+});

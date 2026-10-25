@@ -49,3 +49,9 @@ it('does not replace a complete date with a high-confidence substring from anoth
     [word('28',10,10,0.99,35),word('/02/2029',45,10,0.96,165)]);
   expect(result.map(w=>w.text)).toEqual(['28/02/2029']);
 });
+
+it('preserves an adjacent character whose OCR box overlaps a matching number', () => {
+  const result = mergeDetailWords([word('502',10,10,0.92,60),word('室',52,10,0.81,21)],
+    [word('502',2,10,0.92,68)]);
+  expect(result.map(w=>w.text)).toEqual(['502','室']);
+});
