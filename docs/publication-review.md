@@ -2,6 +2,8 @@
 
 Reviewed on **2026-10-24 (America/Toronto)**. Baseline: `47b32aa1961716d45b16c9d9bd176e48e2f31877` in `yliu54977-bot/Privacy-X-Ray-Submission`.
 
+**Remediation status:** The code/configuration changes described below are prepared in [PR #1](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/pull/1). They are not active on `main` until that PR is merged. Local validation passed 704 application tests and 6 publication-check tests.
+
 ## Conclusion
 
 No confirmed live credential, private training dataset, or user-uploaded identity image was found in the reviewed baseline. This is a scoped review, not a security certification or proof that every identifier is fictional. Keep the public source and documented synthetic fixtures; do not copy the private development workspace wholesale into this repository.
@@ -36,6 +38,7 @@ The six reviewed binary assets are pinned by path and SHA-256 in `scripts/check-
 | Medium | No security-header/CSP deployment configuration in this snapshot. | Documented; not changed during data-publication work. Requires a separate compatibility-tested web hardening change and deployment to the actual demo host. |
 | Low | Actions used mutable `@v4` references and checkout's default persisted credentials. | Pinned the observed upstream commits and set `persist-credentials: false`. Read-only workflow permissions retained. |
 | Low | README/checklist incorrectly described the now-public repository as private. | Corrected and linked the publication policy. |
+| Low / privacy preference | The baseline Git commit exposes a non-noreply author/committer email address. | The value is not reproduced here. Authors can use GitHub's noreply address for future commits; that does not remove existing commit metadata. No history rewrite was performed. |
 
 No confirmed critical/high-severity credential leak was identified. The priority labels above describe this review's findings, not a numerical security score.
 
@@ -46,7 +49,7 @@ No confirmed critical/high-severity credential leak was identified. The priority
 - Credential-format hits occurred in `src/v2/detection/documentPatterns.test.ts`: an obviously synthetic token and private-key marker/body test cases. No live-credential validation requests were made.
 - `npm audit --package-lock-only --ignore-scripts --json` returned **0 known vulnerabilities** for the lockfile at review time. This is advisory-database coverage only, not proof of safe dependencies or model binaries.
 - [Baseline CI run](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/actions/runs/40149108795) succeeded with **704 unit/component tests and 64 browser tests**. Logs were inspected; the targeted credential-format scan did not find secret markers.
-- Artifact `12581366950` (`synthetic-integration-test-results`, 2,373,225 bytes) was downloaded and its SHA-256 verified as `2ade29aaa69a9695771b7bec960f3cc188acb00c001225161a25069b5fcb04c8`. It contains 9 PNG screenshots, not a training dataset. Visual review and generating-test inspection found synthetic document screens and one redacted upstream public portrait, rather than a team's private upload. Screenshots may show unmasked values in sidebars; redacting only the preview does not sanitize a full UI capture. The original artifact remains available until separately deleted or expired (scheduled 2026-11-01 UTC).
+- Artifact `12581366950` (`synthetic-integration-test-results`, 2,373,225 bytes) was downloaded and its SHA-256 verified as `2ade29aaa69a9695771b7bec960f3cc188acb00c001225161a25069b5fcb04c8`. It contains 9 PNG screenshots, not a training dataset. Visual review and generating-test inspection found synthetic document screens and one redacted upstream public portrait, rather than a team's private upload. Screenshots may show unmasked values in sidebars; redacting only the preview does not sanitize a full UI capture. The original artifact remains available until separately deleted or expired (scheduled 2026-10-31 in America/Toronto).
 - One HTTP fetch of the README-linked, separately hosted demo returned 200 and HSTS, but no CSP header/meta, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy` or `X-Frame-Options`. This checks that response only; it does not establish deployed-source identity or complete runtime network behavior.
 
 ## Remaining work
