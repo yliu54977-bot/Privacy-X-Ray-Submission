@@ -4,7 +4,7 @@
 
 Privacy X-Ray is a local image review and redaction tool for screenshots, identity documents, receipts, and PDF pages. It combines text, face, and code detection with an editable mask layer, then exports a PNG with the selected regions replaced by opaque black pixels.
 
-**[Download desktop](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/releases/tag/v0.1.0-desktop-test.1)** · **[Quick start](#quick-start)** · **[Privacy & security](#privacy--security)** · **[Development](#development)** · **[MIT license](LICENSE)**
+**[Try in browser](https://privacy-xray-app.vercel.app/)** · **[Download desktop](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/releases/tag/v0.1.0-desktop-test.1)** · **[Quick start](#quick-start)** · **[Privacy & security](#privacy--security)** · **[Development](#development)** · **[MIT license](LICENSE)**
 
 > **Project status:** Desktop preview — `v0.1.0-desktop-test.1`. Native Mac ARM64 and Windows x64 builds are available. This is a test release; signing, platform validation, and detection limitations are described below.
 
