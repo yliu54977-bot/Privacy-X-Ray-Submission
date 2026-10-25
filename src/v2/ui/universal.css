@@ -587,6 +587,8 @@
 }
 .uv-comparison-stage {
   position: relative;
+  /* Allow vertical page scrolling while reserving horizontal touch drags for comparison. */
+  touch-action: pan-y;
   overflow: hidden;
   border: 1px solid #dce2ed;
   border-radius: 10px;

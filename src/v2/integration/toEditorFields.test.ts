@@ -1,3 +1,4 @@
+import type { OcrResult } from '../../types';
 import { describe, expect, it } from 'vitest';
 import type { UniversalDetectionResult, UniversalFinding } from '../contracts';
 import { toEditorFields } from './toEditorFields';
@@ -30,4 +31,23 @@ describe('v2 finding bridge to the existing editor', () => {
     expect(fields[0]?.boxes).toEqual([]);
     expect(fields[1]?.confidence).toBe(0);
   });
+});
+
+const protectedOcr: OcrResult = {imageId:'img',width:200,height:100,language:'eng',text:'fictional',
+  words:[{id:'w1',lineId:'line',text:'fictional',confidence:.9,box,coverageBox:{...box,x:5,width:90}}]};
+it('uses the same text edge protection for linked fields while preserving source and decision identity',()=>{
+ const input=result([finding('field','KNOWN','email')]);const field=toEditorFields(input,protectedOcr)[0]!;
+ expect(field.id).toBe('field');expect(field.boxes[0]!.x).toBeLessThan(5);
+ expect(field.boxes[0]!.x+field.boxes[0]!.width).toBeGreaterThan(95);
+ expect(input.findings[0]!.boxes).toEqual([box]);
+});
+it('does not manufacture unlocated boxes, alter visual regions, or use stale OCR',()=>{
+ const visual={...finding('face','KNOWN'),evidence:[{...evidence,source:'image' as const}]};
+ expect(toEditorFields(result([visual]),protectedOcr)[0]!.boxes).toEqual([box]);
+ expect(toEditorFields(result([{...finding('unlocated','KNOWN'),boxes:undefined}]),protectedOcr)[0]!.boxes).toEqual([]);
+ expect(toEditorFields(result([finding('field','KNOWN')]),{...protectedOcr,imageId:'old'})[0]!.boxes).toEqual([box]);
+});
+it('never expands into another column merely because evidence lists the same word',()=>{
+ const remote={x:120,y:20,width:30,height:18};
+ expect(toEditorFields(result([{...finding('field','KNOWN'),boxes:[remote]}]),protectedOcr)[0]!.boxes).toEqual([remote]);
 });

@@ -5,7 +5,7 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import type { OcrResult } from './types';
 const mocks = vi.hoisted(() => ({ load: vi.fn(), scan: vi.fn(), detect: vi.fn(), dispose: vi.fn() }));
 vi.mock('./features/image/loadImage', () => ({ loadImage: mocks.load }));
-vi.mock('./v2/detection/scanImageV2', () => ({ scanImageV2: mocks.scan }));
+vi.mock('./features/recognition/scanContent', () => ({ scanContent: mocks.scan }));
 vi.mock('./v2/detection/detectUniversalPrivacy', () => ({ detectUniversalPrivacy: mocks.detect }));
 vi.mock('./v2/detection/imagePixels', () => ({ openBrowserImagePixels: async () => ({ dispose: mocks.dispose }) }));
 vi.mock('./features/editor', () => ({ RedactionEditor: () => <div>Local editor</div> }));

@@ -460,3 +460,24 @@ describe('v2 session integration', () => {
     expect(sessionReducer(withoutManual, { ...requested, allowUnlocatedMask: true })).toBe(withoutManual);
   });
 });
+
+describe('selection-only workflow', () => {
+  it('starts all fields visible without invoking a policy and preserves manual masks', () => {
+    const reducer = createSessionReducer(() => { throw new Error('Policy must not run'); }, { selectionOnly: true });
+    let state = reducer({ ...initialState, reviewMode: 'universal' }, { type: 'IMAGE_LOADED', image });
+    state = reducer(state, { type: 'ADD_MANUAL_MASK', mask: manual });
+    state = reducer(state, { type: 'SCAN_STARTED', imageId: image.id, requestId: 'scan' });
+    state = reducer(state, { type: 'SCAN_COMPLETED', imageId: image.id, requestId: 'scan', ocr, fields: [field] });
+    expect(state.recommendations).toEqual([]);
+    expect(state.decisions.field?.action).toBe('KEEP');
+    expect(state.masks).toEqual([manual]);
+    state = reducer(state, { type: 'UPDATE_FIELD_DECISION', imageId: image.id, fieldId: field.id, decision: 'MASK' });
+    expect(state.masks).toHaveLength(3);
+    const preview = new Blob(['fictional']);
+    state = reducer(state, { type: 'PREVIEW_COMPLETED', imageId: image.id, revision: state.revision, blob: preview });
+    expect(state.preview?.blob).toBe(preview);
+    state = reducer(state, { type: 'UPDATE_MASK', imageId: image.id, maskId: manual.id, rect: { ...manual, x: 80 } });
+    expect(state.preview).toBeNull();
+    expect(reducer(state, { type: 'CHANGE_CONTEXT', context: { recipient: 'public_sharing', purpose: 'sharing_screenshot_publicly' } })).toBe(state);
+  });
+});

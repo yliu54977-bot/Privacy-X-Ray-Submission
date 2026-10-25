@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 
 test('small fictional screenshot OCR keeps findings in original-image pixels', async ({ page }) => {
   test.setTimeout(90000);
-  await page.goto('/');
+  await page.goto('/?review=advanced');
   const bytes = await page.evaluate(async () => {
     const image = new Image();
     image.src = '/samples/tuition-payment.png';
@@ -18,8 +18,8 @@ test('small fictional screenshot OCR keeps findings in original-image pixels', a
     name: 'fictional-small.png', mimeType: 'image/png', buffer: Buffer.from(bytes),
   });
   await page.getByRole('button', { name: 'Scan for Sensitive Information' }).click();
-  await expect(page.getByRole('region', { name: 'Privacy recommendations' })
-    .getByRole('button', { name: 'Bank Account Number' })).toBeVisible({ timeout: 60000 });
+  await expect(page.getByRole('article', { name: 'Bank Account Number' }))
+    .toBeVisible({ timeout: 60000 });
   const boxes = await page.locator('.px-editor svg .px-highlight').evaluateAll(nodes => nodes.map(node => ({
     x: Number(node.getAttribute('x')), y: Number(node.getAttribute('y')),
     width: Number(node.getAttribute('width')), height: Number(node.getAttribute('height')),
