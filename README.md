@@ -85,9 +85,7 @@ PNG, JPEG and WebP inputs are limited to 20 MB and 16 million decoded pixels; We
 
 Developer A worked on architecture, upload, OCR and integration; Developer B on the editor and review interface; Developer C on privacy recommendations and permanent export. Integration and recognition improvements followed the initial module work.
 
-This public submission repository starts with a clean snapshot of the validated A+B integrated application, including its required export and policy dependencies. It does not import the private development repository's commit history, local uploads, environment files or development artifacts. The validated application baseline passed **704 unit/component tests and 64 browser acceptance tests**, including real OCR and exported-pixel checks. This small regression set is not a general accuracy benchmark. Repository CI runs the same acceptance suite.
-
-Before publishing changes, review the [public-file inventory and assessment](docs/publication-review.md) and [security policy](SECURITY.md). Keep real user files and private training data outside this repository. Stage the intended files, then run `node scripts/check-publication.mjs` before pushing. CI no longer uploads screenshots or traces; public logs must still contain only fictional test inputs.
+This private submission-preparation repository starts with a clean snapshot of the validated A+B integrated application, including its required export and policy dependencies. It does not import the private development repository's commit history, local uploads, environment files or development artifacts. The validated application baseline passed **704 unit/component tests and 64 browser acceptance tests**, including real OCR and exported-pixel checks. This small regression set is not a general accuracy benchmark. Repository CI runs the same acceptance suite. Publication is a separate team decision; this repository remains private.
 
 ## License and attribution
 
