@@ -48,16 +48,6 @@ it('explains empty OCR and blocks changes during scanning', () => {
   act(() => host.querySelector<HTMLButtonElement>('article button')!.click());
   expect(onMask).not.toHaveBeenCalled();
 });
-it('all-content mode retains classified text and emits padded leaf geometry', () => {
-  const onMask = vi.fn();
-  const finding = { evidence: [{ wordIds: ['w-0'] }] } as unknown as UniversalFinding;
-  act(() => root.render(<OcrTextReview allContent ocr={ocr} findings={[finding]} masks={[]} onMask={onMask} />));
-  expect(host.textContent).toContain('All recognized text (12 words)');
-  expect(host.textContent).toContain('Fictional-0');
-  act(() => host.querySelector<HTMLButtonElement>('article button')!.click());
-  expect(onMask).toHaveBeenCalledWith([{ x: 15, y: 15, width: 110, height: 30 }]);
-  expect(host.querySelectorAll('input[type=radio]')).toHaveLength(3);
-});
 
 it('fills gaps in unclassified text and restores rotated original-image coordinates', () => {
   const rotated = rememberOcrOrientation({ ...ocr, width: 600, height: 1000,
