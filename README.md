@@ -1,92 +1,180 @@
 # Privacy X-Ray
 
-**Find possible sensitive information. Choose what to hide. Download a permanently redacted PNG.**
+**Find sensitive information. Choose what to hide. Share with confidence.**
 
-[Live demo](https://yliu54977-bot.github.io/privacy-x-ray-site/) · [Planning documents](devpost/README.md) · [Recognition coverage](docs/material-recognition.md)
+Privacy X-Ray is a local image review and redaction tool for screenshots, identity documents, receipts, and PDF pages. It combines text, face, and code detection with an editable mask layer, then exports a PNG with the selected regions replaced by opaque black pixels.
 
-The hosted demo is maintained separately. Run this snapshot locally to review the exact submission version.
+**[Download desktop](https://github.com/yliu54977-bot/Privacy-X-Ray/releases/tag/v0.1.0-desktop-test.1)** · **[Quick start](#quick-start)** · **[Privacy & security](#privacy--security)** · **[Development](#development)** · **[MIT license](LICENSE)**
 
-Privacy X-Ray is a browser-local privacy inspection and image redaction app built with React, TypeScript and Vite. It helps people review screenshots, document photographs and selected PDF pages before sharing. No account, API key, recipient questionnaire or purpose form is required.
+> **Project status:** Desktop preview — `v0.1.0-desktop-test.1`. Native Mac ARM64 and Windows x64 builds are available. This is a test release; signing, platform validation, and detection limitations are described below.
 
-## Try it
+## Why Privacy X-Ray?
 
-1. Open the demo and choose an image or PDF, or use **Try a sample**.
-2. Recognition starts automatically. Check the items you want to cover.
-3. Draw a mask over anything missed. Move, resize or delete masks as needed.
-4. Select **Preview covered image**, inspect the actual result, then **Download PNG**.
+Sharing a screenshot often exposes more than the intended message: a student number beside a portrait, an email in a receipt, or a QR code containing account information. Privacy X-Ray helps you locate those details and decide what to remove before sharing.
 
-Findings start unchecked. The app does not decide what you must hide. Editing masks invalidates the previous preview. The downloaded PNG contains opaque replacement pixels at the original image resolution; redactions are not removable CSS or editing layers.
+Recognition provides suggestions. **You control every mask**, and you can cover anything the detectors miss.
 
-## What is included
+## Features
 
-- Local English and simplified Chinese OCR, bounded orientation recovery, and native-detail text rescanning.
-- Candidate detection for names, contact details, multiline addresses, supported identity and payment formats, credentials, and labeled information across everyday documents.
-- Unlabeled institution, student, employee, library and membership card candidates where readable layout evidence exists.
-- Possible face locations, QR inspection, and horizontal/vertical barcode-region detection with nearby printed numeric captions. Face detection does not identify people; barcode regions are not decoded.
-- Searchable recognized text for information the classifiers did not categorize.
-- An interactive editor with original-image coordinates, keyboard controls, desktop/mobile layouts and permanent PNG export.
-- The previous Universal/Classic context-aware review at `?review=advanced`, retained for comparison and regression testing. It is separate from the default workflow.
+- **Local text recognition:** English and Simplified Chinese OCR, with detectors for possible names, email addresses, phone numbers, identity/student numbers, addresses, and other sensitive fields.
+- **Face and code detection:** Locate faces, QR codes, and supported barcode formats alongside text findings.
+- **Editable redaction:** Select detected items, locate them on the image, and draw, move, resize, or remove masks manually.
+- **Text review:** Inspect recognized text and cover additional regions without relying solely on automatic classification.
+- **PDF page support:** Choose a page, review its rendered image, and export the redacted result as PNG.
+- **Pixel-based export:** Selected regions are painted into a freshly encoded PNG. Editable mask layers and the original source file are not embedded in the export.
+- **Session controls:** Clear the current file and results, or return to the start screen using the logo. Manual masking remains available when recognition fails.
 
-These are candidates, not proof of privacy or document authenticity. Blur, glare, handwriting, small text, arbitrary rotation, unsupported languages, unusual layouts, faces and barcodes can still be missed. Inspect the entire final image. See the [coverage and limits](docs/material-recognition.md).
+## Download
 
-## Run locally
+Download the ZIP for your platform from the [desktop test release](https://github.com/yliu54977-bot/Privacy-X-Ray/releases/tag/v0.1.0-desktop-test.1). Each package has a matching `.sha256` checksum file.
 
-Use **Node.js 22.13 or later** and npm.
+| Platform | Package | Getting started |
+| --- | --- | --- |
+| macOS · Apple Silicon | [Mac ARM64 ZIP](https://github.com/yliu54977-bot/Privacy-X-Ray/releases/download/v0.1.0-desktop-test.1/Privacy-X-Ray-0.1.0-Mac-arm64-adhoc-test.zip) | Extract the ZIP and move `Privacy X-Ray.app` to Applications. |
+| Windows · x64 | [Windows x64 ZIP](https://github.com/yliu54977-bot/Privacy-X-Ray/releases/download/v0.1.0-desktop-test.1/Privacy-X-Ray-0.1.0-Windows-x64-test.zip) | Extract the complete ZIP and launch `Privacy X-Ray.exe`. Keep its companion files together. |
+
+The desktop packages include the application, recognition models, and PDF resources. End users do not need Node.js or an API key.
+
+**Signing status:** The Mac package uses an ad-hoc signature and has not been notarized by Apple, so Gatekeeper may block it. The Windows package is not publisher-signed and may also show a security warning. See the [desktop guide](desktop/README.md) for details. Downloads require repository access while this repository is private.
+
+## Quick start
+
+1. **Open a file.** Choose or drag in an image or PDF. Recognition starts automatically; a fictional sample is also available.
+2. **Choose what to hide.** Check individual findings or use **Select all**. Unchecked findings remain visible.
+3. **Review the whole image.** Draw masks over missed information and adjust their boundaries with **Select / Edit**.
+4. **Preview the result.** Select **Preview covered image** and inspect the actual output.
+5. **Save a copy.** Select **Download PNG**. Your original file is not modified.
+
+For PDFs, this workflow applies to **one selected page at a time**. It does not produce a redacted multi-page PDF.
+
+### Supported files
+
+| Input | Current limits | Output |
+| --- | --- | --- |
+| PNG / JPEG | Up to 20 MiB and 16 million pixels | PNG at the loaded image dimensions |
+| WebP | Same image limits; converted to one still frame | PNG |
+| PDF | Up to 20 MiB and 200 pages; one selected page per operation | PNG at the rendered page dimensions |
+
+Password-protected PDFs are not supported. Convert HEIC, GIF, Office documents, and video to a supported still-image format first. Large PDF pages are scaled during rendering.
+
+## Privacy & security
+
+Recognition and redaction run on the user's device. The application has no file-upload API or server-side recognition service.
+
+| | Desktop edition | Hosted web edition |
+| --- | --- | --- |
+| App and model resources | Bundled in the application | Loaded from the website's origin |
+| Image and PDF processing | Local | Local |
+| Network requirement | Designed to run offline after download | Requires network access to load the app and resources |
+| Runtime controls | Sandboxed renderer; remote session requests, external navigation, popups, and device permissions blocked | Content Security Policy and security headers |
+| Updates and telemetry | No automatic updater, analytics, or crash-upload service configured | Hosting may retain connection/access metadata |
+
+The desktop app loads bundled assets through `privacy-xray://app/`, without running an HTTP server. Its renderer has Node.js integration disabled, context isolation enabled, and no preload/IPC bridge.
+
+**Clear file** releases the application's references to the current file, results, and previews. It does not delete original files or saved exports, and it is not secure erasure of operating-system memory or storage.
+
+These controls do not protect against a compromised operating system or a modified application. Read [SECURITY.md](SECURITY.md) for the full boundaries.
+
+## Development
+
+### Requirements
+
+- Node.js **22.13 or newer** and npm.
+- Internet access to install dependencies and prepare build resources.
+- Repository access to clone this private repository.
+- macOS for Mac packaging; use the target operating system for desktop acceptance testing.
+
+### Run the web app
 
 ```sh
-git clone https://github.com/yliu54977-bot/Privacy-X-Ray-Submission.git
-cd Privacy-X-Ray-Submission
+git clone https://github.com/yliu54977-bot/Privacy-X-Ray.git
+cd Privacy-X-Ray
 npm ci
 npm run dev
 ```
 
-Open the local URL printed by Vite. Installation prepares pinned OCR, face and PDF assets for same-origin serving. It requires internet access to obtain dependencies; normal image processing uses the downloaded local assets. No cloud AI service is configured.
+Open the local URL printed by Vite. Installation prepares recognition assets from pinned dependencies; no API key is required.
+
+For a production build:
 
 ```sh
-npm run typecheck
-npm test
 npm run build
 npm run preview
 ```
 
-For the browser acceptance suite:
+The web build is written to `dist/`. Keep the generated `dist/vercel.json` when deploying to Vercel so its security headers are retained.
+
+### Run the desktop app
+
+From the repository root, after `npm ci`:
 
 ```sh
-npm run prepare:test-fixtures
-npx playwright install --with-deps chromium
-npm run test:integration
+npm ci --prefix desktop
+npm run desktop:build
+npm run desktop:start
 ```
 
-The optional test-fixture preparation downloads one checksum-pinned public MediaPipe portrait for real-model tests. It is not a user upload, is ignored by Git, and is not bundled into the website. [Testing details](docs/testing.md).
+If the Electron runtime has not been installed, run `npm exec --prefix desktop -- install-electron`, then retry.
 
-## Privacy and file limits
+Package on the appropriate platform after building:
 
-Image pixels, OCR text, search terms and editing state remain in browser-tab memory. There is no processing backend, database, telemetry or analytics. The hosting provider receives ordinary requests for static website assets; user-selected files and OCR results are not sent with them. This is not an offline-install guarantee.
+```sh
+# macOS / Apple Silicon — requires macOS
+npm run desktop:package -- darwin arm64
 
-PNG, JPEG and WebP inputs are limited to 20 MB and 16 million decoded pixels; WebP uses one still frame. PDFs are limited to 20 MB and 200 pages; the user selects one page to rasterize and export as PNG. The original PDF and its other pages are not redacted. HEIC, Office files, encrypted PDFs, video and animations require conversion. Manual masking remains available when recognition fails.
+# Windows / x64
+npm run desktop:package -- win32 x64
+```
 
-## Project structure
+Packages and checksums are written to `desktop/releases/`. See [desktop/README.md](desktop/README.md) for signing options and the native acceptance checklist.
 
-| Path | Responsibility |
+### Validation
+
+```sh
+npm run typecheck
+npm test
+npm run desktop:test
+
+# Install the browser once before browser tests
+npx playwright install chromium
+npm run test:browser
+npm run test:browser:production
+```
+
+The [test release build](https://github.com/yliu54977-bot/Privacy-X-Ray/actions/runs/40149010976), at commit `24322bd`, passed **673 application tests and 8 desktop/signing/security tests on each platform**. Both native packages built successfully, and the Mac app passed `codesign --verify --deep --strict`.
+
+These results cover automated tests and packaging. Native GUI startup, disconnected recognition, OS-level network monitoring, and native save-dialog behavior still require end-to-end validation on the target systems.
+
+## Architecture
+
+| Area | Responsibility |
 | --- | --- |
-| `src/App.tsx` | Default upload, selection, preview and download flow |
-| `src/features/ocr/`, `src/v2/detection/` | Local OCR, classification and visual region candidates |
-| `src/features/editor/` | Interactive original-pixel redaction editor |
-| `src/state/` | Authoritative decisions, masks and preview invalidation |
-| `src/features/export/` | Permanent Canvas redaction and PNG download |
-| `src/AdvancedApp.tsx`, `src/v2/ui/` | Retained Universal/Classic review components |
-| `src/features/privacy/` | Transparent rules for the optional advanced review |
-| `devpost/` | Scope, PRD, technical specification and submission checklist |
-| `tests/` | Browser workflows using fictional material and a public test fixture |
+| [`src/features/ocr/`](src/features/ocr/) | OCR, orientation, text-region geometry, and detail passes |
+| [`src/v2/detection/`](src/v2/detection/) | Sensitive-field, face, QR, and barcode detection |
+| [`src/features/editor/`](src/features/editor/) | Image-coordinate masks and editing interactions |
+| [`src/features/export/`](src/features/export/) | PNG preview, opaque pixel redaction, and download |
+| [`src/features/documents/`](src/features/documents/) | Local PDF page rendering |
+| [`src/features/privacy/v2/`](src/features/privacy/v2/) | Contextual KEEP / MASK / REVIEW policy engine |
+| [`desktop/`](desktop/) | Electron isolation, bundled-asset integrity checks, and packaging |
+| [`tests/`](tests/) | Browser workflow and recognition regression tests |
 
-[Architecture](docs/architecture.md) · [Test coverage](docs/testing.md)
+The default interface uses explicit user selection. The contextual policy engine and advanced review interface remain available in the codebase for integration and regression work; they do not automatically decide what the default interface hides.
 
-## Team and submission snapshot
+**Built with:** React, TypeScript, Vite, Electron, Tesseract.js, MediaPipe, TensorFlow.js, ZXing WASM, jsQR, and PDF.js. Validation uses Vitest and Playwright.
 
-Developer A worked on architecture, upload, OCR and integration; Developer B on the editor and review interface; Developer C on privacy recommendations and permanent export. Integration and recognition improvements followed the initial module work.
+## Known limitations
 
-This private submission-preparation repository starts with a clean snapshot of the validated A+B integrated application, including its required export and policy dependencies. It does not import the private development repository's commit history, local uploads, environment files or development artifacts. The validated application baseline passed **704 unit/component tests and 64 browser acceptance tests**, including real OCR and exported-pixel checks. This small regression set is not a general accuracy benchmark. Repository CI runs the same acceptance suite. Publication is a separate team decision; this repository remains private.
+- Detection can miss or misread text, faces, codes, handwriting, signatures, or background details. A detected-item count is not proof that all private information was found.
+- Small, rotated, blurred, low-contrast, or unusual layouts can reduce recognition quality. Review the full output and add manual masks as needed.
+- Redaction protects only the pixels you cover. Information elsewhere in the image can still reveal identity or context.
+- The current desktop release is a preview, not an independently audited or fully platform-certified product.
 
-## License and attribution
+## Contributing
 
-Project code is distributed under the [MIT License](LICENSE), preserving its existing copyright notice. Third-party packages, models and test resources retain their own terms; the project license does not relicense them. See [third-party notices](THIRD_PARTY_NOTICES.md).
+Use a feature branch and keep changes focused. Include a description of the behavior change and relevant validation in your pull request. Detection fixes should include a synthetic regression case; UI and export changes should be checked through the full import–review–export flow.
+
+Use fictional or properly anonymized fixtures. Do not commit real identity documents, account credentials, or personal screenshots. For bug reports, include the app version, operating system, reproduction steps, and a non-sensitive example when possible.
+
+## License
+
+Privacy X-Ray is available under the [MIT License](LICENSE). Bundled dependencies and models retain their respective licenses; see the [model notices](assets/models/README.md) and notices included with desktop builds.
