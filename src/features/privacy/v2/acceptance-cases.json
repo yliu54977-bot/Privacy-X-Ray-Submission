@@ -1,0 +1,633 @@
+{
+  "status": "P0 implementation available against A 2c05bd4; historical advanced cases explicitly deferred",
+  "baseline": "50dc0f19bd896ec1502e8130038b0f370614ef68",
+  "dataPolicy": "Fictional acceptance roadmap; executable P0 tests are recommendPrivacyV2.test.ts, not this JSON",
+  "cases": [
+    {
+      "id": "v1-university-bank_account_number",
+      "mode": "v1-compatibility",
+      "recipient": "university",
+      "purpose": "tuition_payment_verification",
+      "fieldType": "bank_account_number",
+      "expectedAction": "MASK",
+      "p0Disposition": "covered_by_executable_P0_tests"
+    },
+    {
+      "id": "v1-university-student_id",
+      "mode": "v1-compatibility",
+      "recipient": "university",
+      "purpose": "tuition_payment_verification",
+      "fieldType": "student_id",
+      "expectedAction": "REVIEW",
+      "p0Disposition": "covered_by_executable_P0_tests"
+    },
+    {
+      "id": "v1-university-payment_amount",
+      "mode": "v1-compatibility",
+      "recipient": "university",
+      "purpose": "tuition_payment_verification",
+      "fieldType": "payment_amount",
+      "expectedAction": "KEEP",
+      "p0Disposition": "covered_by_executable_P0_tests"
+    },
+    {
+      "id": "v1-university-order_number",
+      "mode": "v1-compatibility",
+      "recipient": "university",
+      "purpose": "tuition_payment_verification",
+      "fieldType": "order_number",
+      "expectedAction": "REVIEW",
+      "p0Disposition": "covered_by_executable_P0_tests"
+    },
+    {
+      "id": "v1-university-email",
+      "mode": "v1-compatibility",
+      "recipient": "university",
+      "purpose": "tuition_payment_verification",
+      "fieldType": "email",
+      "expectedAction": "REVIEW",
+      "p0Disposition": "covered_by_executable_P0_tests"
+    },
+    {
+      "id": "v1-university-home_address",
+      "mode": "v1-compatibility",
+      "recipient": "university",
+      "purpose": "tuition_payment_verification",
+      "fieldType": "home_address",
+      "expectedAction": "MASK",
+      "p0Disposition": "covered_by_executable_P0_tests"
+    },
+    {
+      "id": "v1-university-phone",
+      "mode": "v1-compatibility",
+      "recipient": "university",
+      "purpose": "tuition_payment_verification",
+      "fieldType": "phone",
+      "expectedAction": "MASK",
+      "p0Disposition": "covered_by_executable_P0_tests"
+    },
+    {
+      "id": "v1-customer_support-bank_account_number",
+      "mode": "v1-compatibility",
+      "recipient": "customer_support",
+      "purpose": "order_or_refund_inquiry",
+      "fieldType": "bank_account_number",
+      "expectedAction": "MASK",
+      "p0Disposition": "covered_by_executable_P0_tests"
+    },
+    {
+      "id": "v1-customer_support-student_id",
+      "mode": "v1-compatibility",
+      "recipient": "customer_support",
+      "purpose": "order_or_refund_inquiry",
+      "fieldType": "student_id",
+      "expectedAction": "MASK",
+      "p0Disposition": "covered_by_executable_P0_tests"
+    },
+    {
+      "id": "v1-customer_support-payment_amount",
+      "mode": "v1-compatibility",
+      "recipient": "customer_support",
+      "purpose": "order_or_refund_inquiry",
+      "fieldType": "payment_amount",
+      "expectedAction": "KEEP",
+      "p0Disposition": "covered_by_executable_P0_tests"
+    },
+    {
+      "id": "v1-customer_support-order_number",
+      "mode": "v1-compatibility",
+      "recipient": "customer_support",
+      "purpose": "order_or_refund_inquiry",
+      "fieldType": "order_number",
+      "expectedAction": "KEEP",
+      "p0Disposition": "covered_by_executable_P0_tests"
+    },
+    {
+      "id": "v1-customer_support-email",
+      "mode": "v1-compatibility",
+      "recipient": "customer_support",
+      "purpose": "order_or_refund_inquiry",
+      "fieldType": "email",
+      "expectedAction": "REVIEW",
+      "p0Disposition": "covered_by_executable_P0_tests"
+    },
+    {
+      "id": "v1-customer_support-home_address",
+      "mode": "v1-compatibility",
+      "recipient": "customer_support",
+      "purpose": "order_or_refund_inquiry",
+      "fieldType": "home_address",
+      "expectedAction": "MASK",
+      "p0Disposition": "covered_by_executable_P0_tests"
+    },
+    {
+      "id": "v1-customer_support-phone",
+      "mode": "v1-compatibility",
+      "recipient": "customer_support",
+      "purpose": "order_or_refund_inquiry",
+      "fieldType": "phone",
+      "expectedAction": "REVIEW",
+      "p0Disposition": "covered_by_executable_P0_tests"
+    },
+    {
+      "id": "v1-public_sharing-bank_account_number",
+      "mode": "v1-compatibility",
+      "recipient": "public_sharing",
+      "purpose": "sharing_screenshot_publicly",
+      "fieldType": "bank_account_number",
+      "expectedAction": "MASK",
+      "p0Disposition": "covered_by_executable_P0_tests"
+    },
+    {
+      "id": "v1-public_sharing-student_id",
+      "mode": "v1-compatibility",
+      "recipient": "public_sharing",
+      "purpose": "sharing_screenshot_publicly",
+      "fieldType": "student_id",
+      "expectedAction": "MASK",
+      "p0Disposition": "covered_by_executable_P0_tests"
+    },
+    {
+      "id": "v1-public_sharing-payment_amount",
+      "mode": "v1-compatibility",
+      "recipient": "public_sharing",
+      "purpose": "sharing_screenshot_publicly",
+      "fieldType": "payment_amount",
+      "expectedAction": "MASK",
+      "p0Disposition": "covered_by_executable_P0_tests"
+    },
+    {
+      "id": "v1-public_sharing-order_number",
+      "mode": "v1-compatibility",
+      "recipient": "public_sharing",
+      "purpose": "sharing_screenshot_publicly",
+      "fieldType": "order_number",
+      "expectedAction": "MASK",
+      "p0Disposition": "covered_by_executable_P0_tests"
+    },
+    {
+      "id": "v1-public_sharing-email",
+      "mode": "v1-compatibility",
+      "recipient": "public_sharing",
+      "purpose": "sharing_screenshot_publicly",
+      "fieldType": "email",
+      "expectedAction": "MASK",
+      "p0Disposition": "covered_by_executable_P0_tests"
+    },
+    {
+      "id": "v1-public_sharing-home_address",
+      "mode": "v1-compatibility",
+      "recipient": "public_sharing",
+      "purpose": "sharing_screenshot_publicly",
+      "fieldType": "home_address",
+      "expectedAction": "MASK",
+      "p0Disposition": "covered_by_executable_P0_tests"
+    },
+    {
+      "id": "v1-public_sharing-phone",
+      "mode": "v1-compatibility",
+      "recipient": "public_sharing",
+      "purpose": "sharing_screenshot_publicly",
+      "fieldType": "phone",
+      "expectedAction": "MASK",
+      "p0Disposition": "covered_by_executable_P0_tests"
+    },
+    {
+      "id": "v2-new-category-inherits-access",
+      "mode": "v2-acceptance-design",
+      "given": [
+        "A introduces fictional category research-vault-code with supported access-enabling properties",
+        "The recipient is a verified university office and claims this code is required"
+      ],
+      "expected": [
+        "MASK by the access-protection principle",
+        "Reference the access-property evidence; no per-recipient/type matrix entry"
+      ],
+      "p0Disposition": "covered_by_executable_P0_tests",
+      "p0Note": "P0 extension uses a trusted C-owned descriptor, not inferred taxonomy ancestry."
+    },
+    {
+      "id": "v2-new-category-inherits-contact",
+      "mode": "v2-acceptance-design",
+      "given": [
+        "A introduces fictional category project-identity-handle with supported personal identifying/contact properties",
+        "Public sharing is understood and this identity is unnecessary"
+      ],
+      "expected": [
+        "MASK by audience/necessity principles without a category-specific rule"
+      ],
+      "p0Disposition": "covered_by_executable_P0_tests",
+      "p0Note": "P0 extension uses a trusted C-owned descriptor, not inferred taxonomy ancestry."
+    },
+    {
+      "id": "v2-unknown-category",
+      "mode": "v2-acceptance-design",
+      "given": [
+        "A supplies a plausible finding with an unknown category and no interpretable properties",
+        "OCR text recognition is high"
+      ],
+      "expected": [
+        "REVIEW",
+        "Explain class uncertainty separately from OCR readability"
+      ],
+      "p0Disposition": "covered_by_executable_P0_tests"
+    },
+    {
+      "id": "v2-ordinary-unmatched-text",
+      "mode": "v2-acceptance-design",
+      "given": [
+        "Coverage marks a fictional caption as examined ordinary text, not a privacy candidate"
+      ],
+      "expected": [
+        "No fabricated sensitive finding or recommendation for that caption",
+        "Coverage does not imply that the rest of the image is safe"
+      ],
+      "p0Disposition": "covered_by_executable_P0_tests"
+    },
+    {
+      "id": "v2-unsupported-custom-context",
+      "mode": "v2-acceptance-design",
+      "given": [
+        "Custom purpose description sounds like an important verification workflow",
+        "No supported structured meaning or necessity evidence is supplied"
+      ],
+      "expected": [
+        "REVIEW",
+        "Do not imply LLM interpretation of the description"
+      ],
+      "p0Disposition": "covered_by_executable_P0_tests"
+    },
+    {
+      "id": "v2-structured-custom-purpose",
+      "mode": "v2-acceptance-design",
+      "given": [
+        "A custom purpose has explicit, supported structured task/recipient/necessity evidence",
+        "A fictional lower-risk transaction reference is necessary; no overriding risk or ambiguity applies"
+      ],
+      "expected": [
+        "Consider bounded KEEP through general necessity principles",
+        "Explain the evidence and limits without claiming official requirements"
+      ],
+      "p0Disposition": "conservative_P0",
+      "p0ExpectedAction": "REVIEW",
+      "p0Note": "Existing contracts do not establish custom task semantics, verified necessity/recipient, or third-party authority."
+    },
+    {
+      "id": "v2-unverified-recipient",
+      "mode": "v2-acceptance-design",
+      "given": [
+        "A recipient calls itself a bank and asks for a high-impact personal identifier",
+        "Identity/requirements are not verified"
+      ],
+      "expected": [
+        "REVIEW instead of automatic KEEP",
+        "List recipient and requirement uncertainty"
+      ],
+      "p0Disposition": "covered_by_executable_P0_tests"
+    },
+    {
+      "id": "v2-credential-supported",
+      "mode": "v2-acceptance-design",
+      "given": [
+        "Credible evidence identifies an access-enabling fictional token",
+        "A private verified support workflow claims the token is necessary"
+      ],
+      "expected": [
+        "MASK",
+        "Do not echo the token or let task legitimacy automatically cause KEEP"
+      ],
+      "p0Disposition": "covered_by_executable_P0_tests"
+    },
+    {
+      "id": "v2-credential-ambiguous",
+      "mode": "v2-acceptance-design",
+      "given": [
+        "Evidence suggests a possible access credential but entity classification is unresolved"
+      ],
+      "expected": [
+        "REVIEW with potential access consequence",
+        "Never KEEP because OCR confidence is high"
+      ],
+      "p0Disposition": "covered_by_executable_P0_tests"
+    },
+    {
+      "id": "v2-credential-low-ocr-independent-evidence",
+      "mode": "v2-acceptance-design",
+      "given": [
+        "OCR readability is low",
+        "Independent supported evidence confirms an access-enabling secret"
+      ],
+      "expected": [
+        "Retain strong credential protection",
+        "Do not conflate OCR readability with classification or privacy confidence"
+      ],
+      "p0Disposition": "covered_by_executable_P0_tests"
+    },
+    {
+      "id": "v2-third-party-public",
+      "mode": "v2-acceptance-design",
+      "given": [
+        "A supported contact/address finding belongs to someone other than the sharing user",
+        "It is unnecessary for public sharing"
+      ],
+      "expected": [
+        "MASK",
+        "Reference ownership, audience and necessity evidence"
+      ],
+      "p0Disposition": "conservative_P0",
+      "p0ExpectedAction": "REVIEW",
+      "p0Note": "Existing contracts do not establish custom task semantics, verified necessity/recipient, or third-party authority."
+    },
+    {
+      "id": "v2-multiple-owners-no-transfer",
+      "mode": "v2-acceptance-design",
+      "given": [
+        "An evidence group contains fictional owners person-a and person-b",
+        "Only person-a has supported authority/necessity evidence for disclosure"
+      ],
+      "expected": [
+        "Do not inherit authority for person-b",
+        "REVIEW unresolved person-b disclosure and expose ownership uncertainty"
+      ],
+      "p0Disposition": "deferred_advanced",
+      "p0Note": "No unsupported relationship/ownership graph or advanced uncertainty inference; applicable uncertain findings return REVIEW."
+    },
+    {
+      "id": "v2-name-address-supported-link",
+      "mode": "v2-acceptance-design",
+      "given": [
+        "Fictional person-name f1 and address f2 have supported same-subject linkage",
+        "Both contribute to unnecessary public identifiability"
+      ],
+      "expected": [
+        "Explain joint re-identification risk supported by f1/f2 and linkage evidence",
+        "MASK implicated unnecessary public disclosures"
+      ],
+      "p0Disposition": "deferred_advanced",
+      "p0Note": "No unsupported relationship/ownership graph or advanced uncertainty inference; applicable uncertain findings return REVIEW."
+    },
+    {
+      "id": "v2-identity-birth-supported-link",
+      "mode": "v2-acceptance-design",
+      "given": [
+        "Identity identifier f3 and birth-date clue f4 have supported same-subject linkage",
+        "A high-impact disclosure is claimed necessary for a legitimate task"
+      ],
+      "expected": [
+        "Expose impersonation/record-linkage consequences",
+        "REVIEW rather than automatic KEEP"
+      ],
+      "p0Disposition": "deferred_advanced",
+      "p0Note": "No unsupported relationship/ownership graph or advanced uncertainty inference; applicable uncertain findings return REVIEW."
+    },
+    {
+      "id": "v2-image-location-supported-link",
+      "mode": "v2-acceptance-design",
+      "given": [
+        "Identifying image f5 and precise-location finding f6 have supported linkage",
+        "Public disclosure is unnecessary"
+      ],
+      "expected": [
+        "MASK with joint identification/physical-safety explanation",
+        "Reference both findings and linkage evidence"
+      ],
+      "p0Disposition": "deferred_advanced",
+      "p0Note": "No unsupported relationship/ownership graph or advanced uncertainty inference; applicable uncertain findings return REVIEW."
+    },
+    {
+      "id": "v2-account-token-supported-link",
+      "mode": "v2-acceptance-design",
+      "given": [
+        "Account identifier f7 and access token f8 share a supported account link",
+        "A support recipient requests both"
+      ],
+      "expected": [
+        "Retain access-secret MASK",
+        "Expose combined account-access risk with f7/f8 evidence; do not hide it behind a global score"
+      ],
+      "p0Disposition": "deferred_advanced",
+      "p0Note": "No unsupported relationship/ownership graph or advanced uncertainty inference; applicable uncertain findings return REVIEW."
+    },
+    {
+      "id": "v2-weak-clues-supported-link",
+      "mode": "v2-acceptance-design",
+      "given": [
+        "Several independently modest clues f9/f10/f11 have supported same-subject links",
+        "Joint public identifiability is materially greater than separate clues"
+      ],
+      "expected": [
+        "Return a multi-finding conclusion with all supporting IDs",
+        "Do not assume each individual field is independent"
+      ],
+      "p0Disposition": "deferred_advanced",
+      "p0Note": "No unsupported relationship/ownership graph or advanced uncertainty inference; applicable uncertain findings return REVIEW."
+    },
+    {
+      "id": "v2-unrelated-owners-not-joined",
+      "mode": "v2-acceptance-design",
+      "given": [
+        "Name f12 belongs to person-a; address f13 belongs to person-b",
+        "They only co-occur in one screenshot"
+      ],
+      "expected": [
+        "No definite same-person name/address conclusion",
+        "Do not infer a shared identity from image co-occurrence"
+      ],
+      "p0Disposition": "covered_by_executable_P0_tests"
+    },
+    {
+      "id": "v2-uncertain-link",
+      "mode": "v2-acceptance-design",
+      "given": [
+        "Two fictional clues have uncertain possible linkage, without supported same-subject evidence"
+      ],
+      "expected": [
+        "At most a qualified potential-risk REVIEW",
+        "Expose linkage uncertainty instead of asserting identity"
+      ],
+      "p0Disposition": "deferred_advanced",
+      "p0Note": "No unsupported relationship/ownership graph or advanced uncertainty inference; applicable uncertain findings return REVIEW."
+    },
+    {
+      "id": "v2-support-removed",
+      "mode": "v2-acceptance-design",
+      "given": [
+        "An earlier combined-risk conclusion used f1/f2 with supported linkage",
+        "f2 or its supporting relationship evidence is removed"
+      ],
+      "expected": [
+        "Remove/recompute the old conclusion",
+        "A integration invalidates the accepted PNG preview"
+      ],
+      "p0Disposition": "deferred_A_integration",
+      "p0Note": "A owns reducer and preview invalidation; C policy is pure and recomputes only supplied findings."
+    },
+    {
+      "id": "v2-requirements-conflict",
+      "mode": "v2-acceptance-design",
+      "given": [
+        "Two stated requirements request incompatible disclosure scopes",
+        "Provenance exists but the conflict is unresolved"
+      ],
+      "expected": [
+        "REVIEW",
+        "Reference both conflicting requirements; do not choose the more permissive one silently"
+      ],
+      "p0Disposition": "covered_by_executable_P0_tests"
+    },
+    {
+      "id": "v2-requirement-claim-not-authority",
+      "mode": "v2-acceptance-design",
+      "given": [
+        "A user-provided requirement claims a recipient requires all personal data",
+        "There is no supporting scope/necessity evidence"
+      ],
+      "expected": [
+        "REVIEW for uncertain disclosures",
+        "Do not call the requirement official or legally mandatory"
+      ],
+      "p0Disposition": "covered_by_executable_P0_tests"
+    },
+    {
+      "id": "v2-high-impact-legitimate-task",
+      "mode": "v2-acceptance-design",
+      "given": [
+        "A verified recipient and credible legitimate purpose request high-impact health/biometric/identity data",
+        "Necessity evidence alone does not resolve consequences or authority"
+      ],
+      "expected": [
+        "REVIEW instead of automatic KEEP",
+        "Show distinct high-impact/ownership/necessity factors"
+      ],
+      "p0Disposition": "covered_by_executable_P0_tests"
+    },
+    {
+      "id": "v2-necessity-lower-risk-bounded",
+      "mode": "v2-acceptance-design",
+      "given": [
+        "A supported non-secret lower-risk transaction identifier is needed for a verified support task",
+        "Audience is bounded; ownership/requirements and evidence are supported with no override risk"
+      ],
+      "expected": [
+        "KEEP may be recommended with qualified necessity evidence",
+        "No blanket trust for all fields in that context"
+      ],
+      "p0Disposition": "conservative_P0",
+      "p0ExpectedAction": "REVIEW",
+      "p0Note": "Existing contracts do not establish custom task semantics, verified necessity/recipient, or third-party authority."
+    },
+    {
+      "id": "v2-partial-coverage",
+      "mode": "v2-acceptance-design",
+      "given": [
+        "A detector examined only supported text classes and some image regions",
+        "No privacy finding is returned in the examined region"
+      ],
+      "expected": [
+        "Report coverage limitations separately",
+        "Never claim the whole screenshot is safe or fabricate unexamined sensitive fields"
+      ],
+      "p0Disposition": "covered_by_executable_P0_tests"
+    },
+    {
+      "id": "v2-four-uncertainty-dimensions",
+      "mode": "v2-acceptance-design",
+      "given": [
+        "OCR high; entity class uncertain; context unknown; policy application unsupported"
+      ],
+      "expected": [
+        "Keep all dimensions distinguishable",
+        "REVIEW with specific uncertainty/evidence, not a privacy-confidence number"
+      ],
+      "p0Disposition": "deferred_advanced",
+      "p0Note": "No unsupported relationship/ownership graph or advanced uncertainty inference; applicable uncertain findings return REVIEW."
+    },
+    {
+      "id": "v2-invalid-identity",
+      "mode": "v2-acceptance-design",
+      "given": [
+        "A candidate has missing/duplicate IDs or incoherent image scope"
+      ],
+      "expected": [
+        "Reject unaddressable input without partial output",
+        "Diagnostics contain no raw sensitive content"
+      ],
+      "p0Disposition": "covered_by_executable_P0_tests"
+    },
+    {
+      "id": "v2-unknown-owner",
+      "mode": "v2-acceptance-design",
+      "given": [
+        "An identifying candidate has unknown ownership and unresolved disclosure authority"
+      ],
+      "expected": [
+        "REVIEW where that missing evidence matters",
+        "Do not presume self-ownership or third-party consent"
+      ],
+      "p0Disposition": "covered_by_executable_P0_tests"
+    },
+    {
+      "id": "v2-input-immutability",
+      "mode": "v2-acceptance-design",
+      "given": [
+        "All findings, contexts, taxonomy descriptors, evidence and relationships are deeply frozen"
+      ],
+      "expected": [
+        "Evaluation does not mutate inputs or retain mutable output aliases"
+      ],
+      "p0Disposition": "covered_by_executable_P0_tests"
+    },
+    {
+      "id": "v2-determinism",
+      "mode": "v2-acceptance-design",
+      "given": [
+        "Identical facts are evaluated repeatedly, with irrelevant evidence order permuted"
+      ],
+      "expected": [
+        "Equivalent decisions/factors/evidence sets",
+        "Canonical stable relationship IDs; no clock/random/locale dependence"
+      ],
+      "p0Disposition": "covered_by_executable_P0_tests"
+    },
+    {
+      "id": "v2-no-network-persistence-logs",
+      "mode": "v2-acceptance-design",
+      "given": [
+        "Network, storage/IndexedDB and console APIs throw on access during import/evaluation",
+        "Fictional canary credentials are present in supplied test evidence"
+      ],
+      "expected": [
+        "No API accesses or content logging",
+        "Outputs use opaque evidence IDs without echoing canary secrets"
+      ],
+      "p0Disposition": "covered_by_executable_P0_tests"
+    },
+    {
+      "id": "v2-stale-policy-preview",
+      "mode": "v2-acceptance-design",
+      "given": [
+        "The user has reviewed an accepted PNG",
+        "Taxonomy/policy version, purpose/audience, evidence, relationships or effective decisions change"
+      ],
+      "expected": [
+        "A invalidates preview and review confirmation",
+        "A rejects stale image/revision work; C creates no URLs/masks"
+      ],
+      "p0Disposition": "deferred_A_integration",
+      "p0Note": "A owns reducer and preview invalidation; C policy is pure and recomputes only supplied findings."
+    },
+    {
+      "id": "v2-v1-explicit-routing",
+      "mode": "v2-acceptance-design",
+      "given": [
+        "A legacy request is routed through the approved v1 compatibility path"
+      ],
+      "expected": [
+        "Preserve all approved v1 actions, reasons, rule IDs and fallback behavior",
+        "Do not silently substitute v2 defaults"
+      ],
+      "p0Disposition": "covered_by_executable_P0_tests"
+    }
+  ],
+  "contractCheckpoint": "2c05bd4a516ad6fb2536b6a9f67cb11001d0b87b"
+}

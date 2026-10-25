@@ -1,0 +1,21 @@
+/devpost/learner-profile.md
+.env
+.env.*
+!.env.example
+node_modules/
+dist/
+/public/ocr/
+coverage/
+*.log
+public/ocr/
+.pnpm-store/
+pnpm-lock.yaml
+
+/test-results/
+/playwright-report/
+/public/vision/
+/public/pdf/
+
+# Optional upstream test asset, never a bundled project image.
+/tests/fixtures/public-face-portrait.jpg
+.DS_Store

@@ -1,0 +1,677 @@
+.uv-shell {
+  font-family: Inter, system-ui, sans-serif;
+  color: #243048;
+  background: #f6f7fb;
+  min-height: 100vh;
+  line-height: 1.55;
+}
+.uv-shell * {
+  box-sizing: border-box;
+}
+.uv-header {
+  background: white;
+  border-bottom: 1px solid #e3e7f0;
+  padding: 20px max(20px, 4vw);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.uv-brand {
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: -0.6px;
+}
+.uv-brand span {
+  background: #edeaff;
+  color: #6561b8;
+  border-radius: 12px;
+  padding: 8px 12px;
+  margin-right: 10px;
+}
+.uv-demo-badge {
+  font-size: 12px;
+  color: #595180;
+  background: #f1edff;
+  border-radius: 20px;
+  padding: 7px 12px;
+}
+.uv-main {
+  max-width: 1480px;
+  margin: auto;
+  padding: 36px max(16px, 3vw) 60px;
+}
+.uv-intro {
+  max-width: 760px;
+  margin-bottom: 30px;
+}
+.uv-intro h1 {
+  font-size: clamp(30px, 4vw, 46px);
+  line-height: 1.15;
+  letter-spacing: -1.4px;
+  margin: 8px 0 18px;
+}
+.uv-eyebrow {
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 1.9px;
+  color: #746c9f;
+  margin: 0 0 8px;
+}
+.uv-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+  gap: 24px;
+  align-items: start;
+}
+.uv-column {
+  display: grid;
+  gap: 22px;
+  min-width: 0;
+}
+.uv-panel {
+  font-family: system-ui, sans-serif;
+  background: white;
+  border: 1px solid #e0e5ef;
+  border-radius: 18px;
+  padding: 24px;
+  color: #243048;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.uv-panel h2 {
+  font-size: 22px;
+  line-height: 1.25;
+  margin: 0 0 14px;
+  letter-spacing: -0.4px;
+}
+.uv-panel h3 {
+  font-size: 16px;
+  margin: 0 0 10px;
+}
+.uv-muted,
+.uv-meta {
+  color: #5e6c83;
+  font-size: 13px;
+}
+.uv-panel input,
+.uv-panel select {
+  font: inherit;
+  width: 100%;
+  min-width: 0;
+  border: 1px solid #c7cfdf;
+  border-radius: 8px;
+  padding: 11px;
+  background: white;
+  color: #243048;
+}
+.uv-panel label {
+  display: block;
+  font-size: 13px;
+  font-weight: 650;
+  margin: 12px 0;
+}
+.uv-panel label input,
+.uv-panel label select {
+  margin-top: 6px;
+  font-weight: 400;
+}
+.uv-panel button,
+.uv-demo-controls button {
+  touch-action: manipulation;
+  font: inherit;
+  font-size: 13px;
+  min-height: 40px;
+  border: 1px solid #c9d1df;
+  border-radius: 8px;
+  background: #fff;
+  color: #334368;
+  padding: 9px 13px;
+  cursor: pointer;
+}
+.uv-panel button:hover,
+.uv-demo-controls button:hover {
+  background: #f1f1ff;
+}
+.uv-panel button[aria-pressed="true"] {
+  background: #eeeaff;
+  border-color: #7666c2;
+  color: #4e368b;
+}
+.uv-panel button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.uv-panel :focus-visible,
+.uv-demo-controls :focus-visible {
+  outline: 3px solid #7666c2;
+  outline-offset: 3px;
+}
+.uv-panel .uv-primary {
+  background: #625fba;
+  color: white;
+  border-color: #625fba;
+}
+.uv-panel fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.uv-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 16px;
+}
+.uv-panel .uv-check {
+  touch-action: manipulation;
+  min-height: 44px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-weight: 400;
+  line-height: 1.5;
+  margin: 18px 0;
+}
+.uv-check input {
+  touch-action: manipulation;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.uv-panel .uv-requirement {
+  border: 1px solid #dfe4ee;
+  border-radius: 10px;
+  padding: 16px;
+  margin: 16px 0;
+}
+.uv-requirement legend {
+  font-size: 13px;
+  padding: 0 6px;
+  font-weight: 700;
+}
+.uv-confirm {
+  background: #f6f3ff;
+  border: 1px solid #c6b9ec;
+  border-radius: 12px;
+  margin-top: 18px;
+  padding: 16px;
+}
+.uv-section-heading,
+.uv-card-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+}
+.uv-count {
+  flex-shrink: 0;
+  background: #f0effa;
+  color: #625a85;
+  border-radius: 20px;
+  padding: 6px 10px;
+  font-size: 12px;
+}
+.uv-coverage {
+  background: #fff9eb;
+  border: 1px solid #eadbb5;
+  border-radius: 12px;
+  padding: 18px;
+  margin: 20px 0;
+  font-size: 13px;
+  color: #6b5429;
+}
+.uv-coverage ul {
+  padding-left: 20px;
+}
+.uv-panel summary {
+  cursor: pointer;
+  font-weight: 650;
+  min-height: 38px;
+  align-content: center;
+}
+.uv-filters {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr;
+  gap: 12px;
+}
+.uv-results {
+  font-size: 13px;
+  color: #5e6c83;
+}
+.uv-group {
+  border: 1px solid #e0e5ef;
+  border-radius: 12px;
+  margin: 16px 0;
+  overflow: hidden;
+}
+.uv-group > summary {
+  background: #f7f8fc;
+  padding: 14px 16px;
+}
+.uv-group > summary > span {
+  float: right;
+  font-size: 12px;
+  font-weight: 400;
+  color: #6a7286;
+}
+.uv-finding {
+  padding: 20px;
+  border-top: 1px solid #e4e8f0;
+  scroll-margin-top: 20px;
+}
+.uv-selected {
+  background: #faf8ff;
+  box-shadow: inset 3px 0 #7963c4;
+}
+.uv-finding p {
+  font-size: 13px;
+  margin: 10px 0;
+}
+.uv-card-heading h3 {
+  margin: 0;
+}
+.uv-value {
+  font-family: ui-monospace, monospace;
+  background: #f5f6fa;
+  padding: 10px 12px;
+  border-radius: 7px;
+  overflow-wrap: anywhere;
+}
+.uv-badge {
+  font-size: 11px;
+  letter-spacing: 0.6px;
+  font-weight: 750;
+  padding: 4px 8px;
+  border-radius: 5px;
+}
+.uv-badge.uv-keep {
+  color: #266a4b;
+  background: #e4f3eb;
+}
+.uv-badge.uv-mask {
+  color: #66439a;
+  background: #eee7ff;
+}
+.uv-badge.uv-review {
+  color: #846018;
+  background: #fff0c9;
+}
+.uv-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.uv-tags button {
+  font-size: 11px;
+  min-height: 32px;
+  padding: 5px 8px;
+  background: #f8f9fc;
+}
+.uv-reasons {
+  font-size: 13px;
+  margin: 14px 0;
+}
+.uv-reasons dt {
+  font-weight: 650;
+  color: #4b5670;
+  margin-top: 10px;
+}
+.uv-reasons dd {
+  margin: 4px 0 0;
+  color: #5e6c83;
+}
+.uv-warning {
+  background: #fff6df;
+  color: #75551b;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 13px;
+}
+.uv-location {
+  color: #5e6c83;
+}
+.uv-evidence {
+  font-size: 12px;
+  margin: 12px 0;
+}
+.uv-evidence ul {
+  padding-left: 18px;
+}
+.uv-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+.uv-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+}
+.uv-empty {
+  padding: 24px;
+  border: 1px dashed #c7cfdf;
+  border-radius: 10px;
+}
+.uv-final img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid #dce2ed;
+  margin: 18px 0;
+}
+.uv-mask-editor {
+  min-width: 0;
+}
+.uv-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+.uv-demo-controls {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 20px 0;
+}
+.uv-active-context {
+  background: #edeaf9;
+  border-radius: 10px;
+  padding: 14px;
+  font-size: 13px;
+}
+.uv-unlocated {
+  padding: 16px;
+  border: 1px solid #eadbb5;
+  border-radius: 10px;
+  background: #fff9eb;
+}
+.uv-shell a {
+  color: #6054a4;
+}
+.uv-shell .px-toolbar > div {
+  flex-wrap: wrap;
+}
+.uv-shell .px-panel select {
+  min-width: 0;
+}
+@media (max-width: 1050px) {
+  .uv-layout {
+    grid-template-columns: 1fr;
+  }
+  .uv-filters {
+    grid-template-columns: 1fr 1fr;
+  }
+  .uv-filters > label:first-child {
+    grid-column: 1/-1;
+  }
+}
+@media (max-width: 600px) {
+  .uv-header {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 16px;
+  }
+  .uv-main {
+    padding: 24px 12px 40px;
+  }
+  .uv-panel {
+    padding: 18px;
+  }
+  .uv-form-grid {
+    grid-template-columns: 1fr;
+  }
+  .uv-filters {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .uv-filters > label:first-child {
+    grid-column: auto;
+  }
+  .uv-section-heading {
+    flex-direction: column;
+  }
+  .uv-finding {
+    padding: 16px;
+  }
+  .uv-group > summary > span {
+    float: none;
+    display: block;
+    margin-left: 16px;
+  }
+  .uv-pagination {
+    flex-wrap: wrap;
+  }
+  .uv-panel button,
+  .uv-demo-controls button {
+    min-height: 44px;
+  }
+  .uv-tags button {
+    min-height: 36px;
+  }
+}
+
+/* Visual inspection additions; existing review/classic styles remain intact. */
+.uv-overview {
+  margin-bottom: 24px;
+}
+.uv-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  margin: 20px 0;
+}
+.uv-stat-grid > div {
+  background: #f6f7fc;
+  border: 1px solid #e6e9f2;
+  border-radius: 12px;
+  padding: 16px;
+}
+.uv-stat-grid dt {
+  font-size: 12px;
+  color: #5e6c83;
+}
+.uv-stat-grid dd {
+  font-size: 30px;
+  font-weight: 750;
+  margin: 8px 0 0;
+  line-height: 1.2;
+}
+.uv-processing {
+  margin-bottom: 20px;
+}
+.uv-process-steps {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  padding: 0;
+  margin: 20px 0;
+}
+.uv-step {
+  display: flex;
+  gap: 9px;
+  font-size: 12px;
+  color: #68768b;
+  border-top: 3px solid #e4e8f1;
+  padding-top: 12px;
+}
+.uv-step strong,
+.uv-step div > span {
+  display: block;
+}
+.uv-step-number {
+  display: grid;
+  place-items: center;
+  align-self: flex-start;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+.uv-step-active {
+  color: #5d46a8;
+  border-color: #7764c8;
+}
+.uv-step-partial {
+  color: #805c22;
+  border-color: #d1a451;
+}
+.uv-step-complete {
+  color: #346d59;
+  border-color: #6eaa91;
+}
+.uv-step-failed {
+  color: #a13b45;
+  border-color: #cf6a75;
+}
+.uv-overlay-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 14px 0;
+  font-size: 12px;
+}
+.uv-overlay-legend span {
+  padding: 5px 9px;
+  border-radius: 6px;
+  border: 1px solid #dfe4ee;
+  background: white;
+}
+.uv-legend-mask {
+  color: #6743a4;
+}
+.uv-legend-review {
+  color: #88620b;
+}
+.uv-legend-keep {
+  color: #24654c;
+}
+.uv-detection {
+  outline: none;
+}
+.uv-detection rect {
+  stroke-width: 2.5;
+  cursor: pointer;
+}
+.uv-detection-mask rect {
+  stroke: #a184ef;
+}
+.uv-detection-review rect {
+  stroke: #b7790d;
+  stroke-dasharray: 7 4;
+}
+.uv-detection-keep rect {
+  stroke: #20855f;
+  stroke-dasharray: 2 3;
+}
+.uv-detection-selected rect,
+.uv-detection:focus-visible rect {
+  stroke-width: 4;
+  filter: drop-shadow(0 0 2px white);
+}
+.uv-detection:focus-visible rect {
+  stroke: #2d43be;
+}
+.uv-comparison {
+  margin: 20px 0;
+}
+.uv-comparison-stage {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #dce2ed;
+  border-radius: 10px;
+  background: #edf0f6;
+}
+.uv-final .uv-comparison-stage img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  margin: 0;
+  border: 0;
+  max-width: none;
+}
+.uv-comparison-after {
+  z-index: 1;
+}
+.uv-comparison-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-left: 2px solid white;
+  z-index: 2;
+  pointer-events: none;
+  filter: drop-shadow(0 1px 2px #243048);
+}
+.uv-comparison-line > span {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: #4e3c82;
+  background: white;
+  font-size: 20px;
+}
+.uv-comparison-label {
+  position: absolute;
+  top: 10px;
+  z-index: 3;
+  color: white;
+  background: #26314cdd;
+  border-radius: 5px;
+  padding: 5px 8px;
+  font-size: 11px;
+  pointer-events: none;
+}
+.uv-comparison-label-after {
+  left: 10px;
+}
+.uv-comparison-label-before {
+  right: 10px;
+}
+.uv-panel .uv-comparison input[type="range"] {
+  height: 42px;
+  padding: 0;
+  accent-color: #625fba;
+  cursor: ew-resize;
+}
+@media (max-width: 900px) {
+  .uv-stat-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .uv-process-steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 480px) {
+  .uv-stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .uv-stat-grid > div {
+    padding: 12px;
+  }
+  .uv-stat-grid dd {
+    font-size: 26px;
+  }
+}
+
+.uv-comparison-stage {
+  touch-action: pan-y;
+  cursor: ew-resize;
+}
