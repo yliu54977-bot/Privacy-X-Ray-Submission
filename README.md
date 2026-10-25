@@ -4,9 +4,9 @@
 
 Privacy X-Ray is a local image review and redaction tool for screenshots, identity documents, receipts, and PDF pages. It combines text, face, and code detection with an editable mask layer, then exports a PNG with the selected regions replaced by opaque black pixels.
 
-**[Try in browser](https://privacy-xray-app.vercel.app/)** · **[Download desktop](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/releases/tag/v0.1.0-desktop-test.1)** · **[Quick start](#quick-start)** · **[Privacy & security](#privacy--security)** · **[Development](#development)** · **[MIT license](LICENSE)**
+**[Try in browser](https://privacy-xray-app.vercel.app/)** · **[Historical desktop preview](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/releases/tag/v0.1.0-desktop-test.1)** · **[Quick start](#quick-start)** · **[Privacy & security](#privacy--security)** · **[Development](#development)** · **[MIT license](LICENSE)**
 
-> **Project status:** Desktop preview — `v0.1.0-desktop-test.1`. Native Mac ARM64 and Windows x64 builds are available. This is a test release; signing, platform validation, and detection limitations are described below.
+> **Source status:** This public repository currently contains the browser application. The historical desktop preview `v0.1.0-desktop-test.1` was built from development commit `24322bd222f1695a071b7a3a5c2477d88f430993`, whose desktop source is not included in this repository. Its ZIPs cannot be reproduced from this release's automatically generated source archives. Desktop source migration and a new public-source build are pending.
 
 ## Why Privacy X-Ray?
 
@@ -17,7 +17,7 @@ Recognition provides suggestions. **You control every mask**, and you can cover 
 ## Features
 
 - **Local text recognition:** English and Simplified Chinese OCR, with detectors for possible names, email addresses, phone numbers, identity/student numbers, addresses, and other sensitive fields.
-- **Face and code detection:** Locate faces, QR codes, and supported barcode formats alongside text findings.
+- **Face and code detection:** Locate possible faces, inspect QR codes, and detect horizontal/vertical barcode regions alongside text findings. This public snapshot does not decode barcode payloads.
 - **Editable redaction:** Select detected items, locate them on the image, and draw, move, resize, or remove masks manually.
 - **Text review:** Inspect recognized text and cover additional regions without relying solely on automatic classification.
 - **PDF page support:** Choose a page, review its rendered image, and export the redacted result as PNG.
@@ -26,7 +26,7 @@ Recognition provides suggestions. **You control every mask**, and you can cover 
 
 ## Download
 
-Download the ZIP for your platform from the [desktop test release](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/releases/tag/v0.1.0-desktop-test.1). Each package has a matching `.sha256` checksum file.
+Historical packages remain available from the [desktop test release](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/releases/tag/v0.1.0-desktop-test.1). Each package has a matching `.sha256` checksum file.
 
 | Platform | Package | Getting started |
 | --- | --- | --- |
@@ -37,7 +37,7 @@ Download the ZIP for your platform from the [desktop test release](https://githu
 
 The desktop packages include the application, recognition models, and PDF resources. End users do not need Node.js or an API key.
 
-**Signing status:** The Mac package uses an ad-hoc signature and has not been notarized by Apple, so Gatekeeper may block it. The Windows package is not publisher-signed and may also show a security warning. See the [desktop guide](desktop/README.md) for details. Desktop ZIP downloads are publicly available from this repository's Releases. These packages mirror the desktop preview built from development commit `24322bd`; this repository's browser-app snapshot and auto-generated source archives are separate.
+**Signing status:** The Mac package uses an ad-hoc signature and has not been notarized by Apple, so Gatekeeper may block it. The Windows package is not publisher-signed and may also show a security warning. Desktop ZIP downloads are publicly available from this repository's Releases. These packages mirror the desktop preview built from development commit `24322bd`; this repository's browser-app snapshot and auto-generated source archives are separate.
 
 ## Quick start
 
@@ -68,10 +68,10 @@ Recognition and redaction run on the user's device. The application has no file-
 | App and model resources | Bundled in the application | Loaded from the website's origin |
 | Image and PDF processing | Local | Local |
 | Network requirement | Designed to run offline after download | Requires network access to load the app and resources |
-| Runtime controls | Sandboxed renderer; remote session requests, external navigation, popups, and device permissions blocked | Content Security Policy and security headers |
+| Runtime controls | Historical desktop package: sandbox and network restrictions reported by its original build | Hosting configuration varies; this source snapshot does not yet include the desktop/web hardening migration |
 | Updates and telemetry | No automatic updater, analytics, or crash-upload service configured | Hosting may retain connection/access metadata |
 
-The desktop app loads bundled assets through `privacy-xray://app/`, without running an HTTP server. Its renderer has Node.js integration disabled, context isolation enabled, and no preload/IPC bridge.
+The historical desktop app loads bundled assets through `privacy-xray://app/`, without running an HTTP server. Its renderer has Node.js integration disabled, context isolation enabled, and no preload/IPC bridge.
 
 **Clear file** releases the application's references to the current file, results, and previews. It does not delete original files or saved exports, and it is not secure erasure of operating-system memory or storage.
 
@@ -83,14 +83,13 @@ These controls do not protect against a compromised operating system or a modifi
 
 - Node.js **22.13 or newer** and npm.
 - Internet access to install dependencies and prepare build resources.
-- Repository access to clone this private repository.
 - macOS for Mac packaging; use the target operating system for desktop acceptance testing.
 
 ### Run the web app
 
 ```sh
-git clone https://github.com/yliu54977-bot/Privacy-X-Ray.git
-cd Privacy-X-Ray
+git clone https://github.com/yliu54977-bot/Privacy-X-Ray-Submission.git
+cd Privacy-X-Ray-Submission
 npm ci
 npm run dev
 ```
@@ -104,48 +103,27 @@ npm run build
 npm run preview
 ```
 
-The web build is written to `dist/`. Keep the generated `dist/vercel.json` when deploying to Vercel so its security headers are retained.
+The web build is written to `dist/`. The hosted demo is currently deployed separately and is not yet verified to match this public source commit.
 
-### Run the desktop app
+### Desktop source availability
 
-From the repository root, after `npm ci`:
-
-```sh
-npm ci --prefix desktop
-npm run desktop:build
-npm run desktop:start
-```
-
-If the Electron runtime has not been installed, run `npm exec --prefix desktop -- install-electron`, then retry.
-
-Package on the appropriate platform after building:
-
-```sh
-# macOS / Apple Silicon — requires macOS
-npm run desktop:package -- darwin arm64
-
-# Windows / x64
-npm run desktop:package -- win32 x64
-```
-
-Packages and checksums are written to `desktop/releases/`. See [desktop/README.md](desktop/README.md) for signing options and the native acceptance checklist.
+`desktop/`, its lockfile and build scripts are not yet present on this branch. Do not use this repository to reproduce `v0.1.0-desktop-test.1`; that release is a historical binary mirror. A separate reviewed migration will add the desktop sources and native build workflow, followed by a new release built from an identified public commit. The historical tag and packages will be retained without replacement.
 
 ### Validation
 
 ```sh
 npm run typecheck
 npm test
-npm run desktop:test
 
 # Install the browser once before browser tests
 npx playwright install chromium
-npm run test:browser
-npm run test:browser:production
+npm run prepare:test-fixtures
+npm run test:integration
 ```
 
-The [test release build](https://github.com/yliu54977-bot/Privacy-X-Ray/actions/runs/40149010976), at commit `24322bd`, passed **673 application tests and 8 desktop/signing/security tests on each platform**. Both native packages built successfully, and the Mac app passed `codesign --verify --deep --strict`.
+The public browser baseline passed **704 unit/component tests and 64 browser acceptance tests**. These are regression checks, not a general detection-accuracy benchmark. See [testing details](docs/testing.md) and the [public CI](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/actions).
 
-These results cover automated tests and packaging. Native GUI startup, disconnected recognition, OS-level network monitoring, and native save-dialog behavior still require end-to-end validation on the target systems.
+The historical desktop build reported 673 application tests and 8 desktop tests; those results belong to its original development source, not this browser snapshot. Native GUI startup, disconnected recognition, OS-level network monitoring and save dialogs still require target-platform validation.
 
 ## Architecture
 
@@ -157,12 +135,11 @@ These results cover automated tests and packaging. Native GUI startup, disconnec
 | [`src/features/export/`](src/features/export/) | PNG preview, opaque pixel redaction, and download |
 | [`src/features/documents/`](src/features/documents/) | Local PDF page rendering |
 | [`src/features/privacy/v2/`](src/features/privacy/v2/) | Contextual KEEP / MASK / REVIEW policy engine |
-| [`desktop/`](desktop/) | Electron isolation, bundled-asset integrity checks, and packaging |
 | [`tests/`](tests/) | Browser workflow and recognition regression tests |
 
 The default interface uses explicit user selection. The contextual policy engine and advanced review interface remain available in the codebase for integration and regression work; they do not automatically decide what the default interface hides.
 
-**Built with:** React, TypeScript, Vite, Electron, Tesseract.js, MediaPipe, TensorFlow.js, ZXing WASM, jsQR, and PDF.js. Validation uses Vitest and Playwright.
+**Built with:** React, TypeScript, Vite, Tesseract.js, MediaPipe, jsQR, and PDF.js. Historical desktop packages additionally use Electron and other dependencies listed in their bundled notices. Validation uses Vitest and Playwright.
 
 ## Known limitations
 
