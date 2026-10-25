@@ -267,14 +267,6 @@ test.describe("final UI touch emulation", () => {
     const acknowledgement = page.getByRole("checkbox", { name: /I checked the final image/ });
     await acknowledgement.tap();
     try { await expect(acknowledgement).toBeChecked(); }
-    catch (error) {
-      console.error('Touch acknowledgement diagnostics:', JSON.stringify(await page.evaluate(() => ({
-        events: (window as Window & { touchJournal?: string[] }).touchJournal,
-        checkbox: (() => { const input = document.querySelector('.uv-final .uv-check input') as HTMLInputElement | null;
-          return input ? { checked: input.checked, disabled: input.disabled } : null; })(),
-      }))));
-      throw error;
-    }
     finally {
       await test.info().attach("synthetic-touch-events", { contentType: "application/json",
         body: JSON.stringify(await page.evaluate(() =>
