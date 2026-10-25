@@ -31,7 +31,11 @@ Review and remove unnecessary older Actions artifacts separately: removing the u
 
 ## Runtime limits
 
-The web edition loads application/model resources over the network. It is not the separate offline Electron desktop edition. There is no application upload endpoint, but this snapshot has no enforced CSP/network-origin allowlist or deployment security-header configuration. The demo is hosted from a separate repository; its deployment must be assessed separately before claiming security-header enforcement.
+The web edition loads application/model resources over the network. `vercel.json` sets a same-origin CSP and response headers; `npm run build` also places that configuration in the static output. Verify the actual deployment before relying on these headers.
+
+The desktop edition bundles those resources and serves only manifest-listed, SHA-256-checked assets under `privacy-xray://app/`. Its non-persistent session denies remote and arbitrary file requests, navigation, popups and device permissions. The renderer is sandboxed, has context isolation enabled and has no Node integration or preload/IPC bridge. Asset checks detect corruption; a malicious replacement of both application and manifest is outside this protection. Ad-hoc Mac signatures and unsigned Windows packages do not provide a trusted publisher identity. OS swap, diagnostics and other software remain outside application controls.
+
+The desktop build workflow retains read-only repository permissions and uploads only packages, checksums and source provenance, never raw fixtures, screenshots or traces. Its publication gate approves specific desktop source paths, not the whole `desktop/` directory.
 
 OCR, image and PDF parsing can consume significant resources and can miss sensitive content. File limits reduce exposure but do not prove resistance to every malformed file. Redaction protects only covered pixels. Clearing UI state is not secure memory erasure, and saved copies remain on disk.
 

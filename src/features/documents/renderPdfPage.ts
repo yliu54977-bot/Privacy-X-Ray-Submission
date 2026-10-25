@@ -1,3 +1,4 @@
+import { localAssetUrl } from '../../localAssets';
 import { MAX_FILE_BYTES } from '../image/loadImage';
 export interface PdfPageImage { file: File; pageNumber: number; pageCount: number }
 
@@ -7,7 +8,7 @@ export async function renderPdfPage(file: File, pageNumber = 1): Promise<PdfPage
   const bytes = new Uint8Array(await file.arrayBuffer());
   if (String.fromCharCode(...bytes.slice(0, 5)) !== '%PDF-') throw new Error('The file is not a readable PDF.');
   const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
-  const base = new URL(`${import.meta.env.BASE_URL}pdf/`, location.origin).href;
+  const base = localAssetUrl('pdf/');
   pdfjs.GlobalWorkerOptions.workerSrc = `${base}pdf.worker.min.mjs`;
   const task = pdfjs.getDocument({ data: bytes,
     cMapUrl: `${base}cmaps/`, cMapPacked: true, standardFontDataUrl: `${base}standard_fonts/`,

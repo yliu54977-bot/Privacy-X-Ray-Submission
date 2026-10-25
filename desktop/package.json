@@ -1,0 +1,16 @@
+{
+  "name": "privacy-x-ray-desktop-tools",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "stage": "node scripts/stage.mjs",
+    "start": "electron stage",
+    "package": "node scripts/package.mjs"
+  },
+  "devDependencies": {
+    "@electron/packager": "20.3.0",
+    "electron": "45.0.0"
+  }
+}

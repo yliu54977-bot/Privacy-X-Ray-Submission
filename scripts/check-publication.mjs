@@ -14,10 +14,11 @@ const approvedAssets = {
   'tests/fixtures/fictional-qr-unknown.png': '1095dab08e7345c999004012ce79c07e2d79b1a23f19939ce4e0600ca9958353',
 };
 const roots = new Set(['src', 'tests', 'scripts', 'assets', 'public', 'docs', 'devpost', '.github']);
+const desktopFiles = new Set(["desktop/package.json", "desktop/package-lock.json", "desktop/tsconfig.json", "desktop/README.md", "desktop/runtime/policy.mjs", "desktop/runtime/assets.mjs", "desktop/runtime/main.mjs", "desktop/scripts/package.mjs", "desktop/scripts/stage.mjs", "desktop/scripts/mac-signing.mjs", "desktop/test/security.test.mjs", "desktop/test/mac-signing.test.mjs", "desktop/test/smoke.mjs"]);
 const rootFiles = new Set(['.gitignore', 'LICENSE', 'README.md', 'SECURITY.md', 'THIRD_PARTY_NOTICES.md',
   'package.json', 'package-lock.json', 'index.html', 'universal.html', 'tsconfig.json',
-  'vite.config.ts', 'playwright.config.ts', 'playwright.production.config.ts']);
-const privateSegments = /(^|\/)(?:uploads?|private|personal|data|datasets?|training|train|fine[-_]?tuning|checkpoints?|runs|wandb|logs?|node_modules|dist|coverage|test-results|playwright-report)(\/|$)/i;
+  'vite.config.ts', 'playwright.config.ts', 'playwright.production.config.ts', 'vercel.json']);
+const privateSegments = /(^|\/)(?:uploads?|private|personal|data|datasets?|training|train|fine[-_]?tuning|checkpoints?|runs|wandb|logs?|node_modules|dist(?:-desktop)?|stage|releases|coverage|test-results|playwright-report)(\/|$)/i;
 const textExtension = /\.(?:md|txt|ts|tsx|js|mjs|css|html|json|ya?ml|swift)$/i;
 const secretPatterns = [
   ['GitHub token', /(?:gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{50,})/g],
@@ -44,7 +45,7 @@ export function inspectFile(path, bytes, mode = '100644') {
   if (privateSegments.test(path) || /^\.env(?:\.|$)/i.test(name) ||
       /(?:learner-profile|credentials|id_rsa|id_ed25519|\.npmrc|\.netrc)/i.test(name))
     issues.push('private-data or credential path is not approved');
-  if (path.includes('/') ? !roots.has(path.split('/')[0]) : !rootFiles.has(path))
+  if (path.startsWith('desktop/') ? !desktopFiles.has(path) : path.includes('/') ? !roots.has(path.split('/')[0]) : !rootFiles.has(path))
     issues.push('new top-level path requires publication review');
   if (Object.hasOwn(approvedAssets, path)) {
     if (createHash('sha256').update(bytes).digest('hex') !== approvedAssets[path])

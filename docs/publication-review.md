@@ -58,3 +58,7 @@ No confirmed critical/high-severity credential leak was identified. The priority
 2. Maintainers: use local pre-push content review; do not put real data in public branches, PRs, logs, Issues or release attachments. A failing public CI run cannot undo an upload.
 3. Web security: apply and verify compatible CSP/security headers at the real deployment, including workers/WASM; test file clearing and runtime requests with synthetic inputs.
 4. Reassess future model changes and new data separately. No guarantees are made about private folders that were not provided, hidden encodings, every possible credential format, external copies, or GitHub security settings that the connection cannot inspect.
+
+## Public desktop migration
+
+The desktop migration is based on public main and selectively ports the isolated runtime, packaging, resource URL adapter and session cleanup. It preserves Submission's OCR, classification and face/QR/barcode-region algorithms. No private Git history, training data, user screenshots or new binary assets are imported. Desktop tool versions are locked in a separate lockfile. Only explicitly reviewed desktop source paths are accepted by the publication check; generated stages, packages and test artifacts remain excluded. Native builds include the project license, third-party notices and their public source commit. Historical test.1 binaries retain their original provenance and are not overwritten.

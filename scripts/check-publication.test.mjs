@@ -49,3 +49,9 @@ test('CLI inspects staged bytes rather than a cleaned working copy', () => {
     assert.match(execFileSync(process.execPath, [script], { cwd, encoding: 'utf8' }), /passed/);
   } finally { rmSync(cwd, { recursive: true, force: true }); }
 });
+
+test('allows reviewed desktop source while excluding generated bundles and extra files', () => {
+  assert.deepEqual(inspect('desktop/runtime/main.mjs', 'export {};'), []);
+  for (const path of ['desktop/stage/package.json', 'desktop/releases/build.zip', 'desktop/new.json', 'dist-desktop/index.html'])
+    assert.ok(inspect(path, '{}').length, path);
+});

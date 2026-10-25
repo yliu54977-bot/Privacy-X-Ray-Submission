@@ -1,0 +1,60 @@
+name: Public source desktop builds
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: desktop-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  package:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-15
+            platform: darwin
+            arch: arm64
+          - os: windows-2022
+            platform: win32
+            arch: x64
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            desktop/package-lock.json
+      - name: Check publication boundary before installing dependencies
+        run: |
+          node --test scripts/check-publication.test.mjs
+          node scripts/check-publication.mjs
+      - run: npm ci
+      - run: npm ci --prefix desktop
+      - run: npm test
+      - run: npm run desktop:test
+      - run: npm run desktop:build
+      - run: npm run prepare:test-fixtures
+      - run: npm run desktop:smoke
+      - name: Confirm native architecture
+        run: node -e "if(process.platform !== '${{ matrix.platform }}' || process.arch !== '${{ matrix.arch }}') process.exit(1)"
+      - run: npm run desktop:package -- ${{ matrix.platform }} ${{ matrix.arch }}
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: Privacy-X-Ray-${{ matrix.platform }}-${{ matrix.arch }}-${{ github.sha }}
+          path: |
+            desktop/releases/*.zip
+            desktop/releases/*.sha256
+            desktop/stage/build-info.json
+          if-no-files-found: error
+          retention-days: 14

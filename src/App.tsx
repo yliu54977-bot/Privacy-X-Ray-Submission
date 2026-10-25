@@ -9,18 +9,21 @@ import { detectUniversalPrivacy } from './v2/detection/detectUniversalPrivacy';
 import { openBrowserImagePixels } from './v2/detection/imagePixels';
 import { toEditorFields } from './v2/integration/toEditorFields';
 import { usePngPreview } from './features/export/usePngPreview';
-import { downloadPng } from './features/export/downloadPng';
+import { downloadPng, revokePendingDownloads } from './features/export/downloadPng';
 import { PdfPageSelection } from './v2/ui/PdfPageSelection';
 import { OcrTextReview } from './v2/ui/OcrTextReview';
 import './simple.css';
+import { isDesktop } from './localAssets';
 
 // Retain the previous interface only for integration/regression review, never as the default flow.
 const AdvancedApp = lazy(() => import('./AdvancedApp'));
 export default function App() {
+  const [session, setSession] = useState(0);
   return new URLSearchParams(location.search).get('review') === 'advanced'
-    ? <Suspense fallback={<p>Loading review…</p>}><AdvancedApp /></Suspense> : <SimpleApp />;
+    ? <Suspense fallback={<p>Loading review…</p>}><AdvancedApp /></Suspense> : <SimpleApp key={session} onClear={() => setSession(value => value + 1)} />;
 }
-export function SimpleApp() {
+export function SimpleApp({ onClear = () => location.reload() }: { onClear?: () => void } = {}) {
+  const desktop = isDesktop();
   const [state, dispatch] = useReducer(sessionReducer, { ...initialState, reviewMode: 'universal' as const });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -43,7 +46,7 @@ export function SimpleApp() {
   const currentPage = Math.min(page, pages - 1);
   useEffect(() => { setPage(0); }, [query, image?.id]);
   useEffect(() => {
-    return () => { sequence.current++; controller.current?.abort(); };
+    return () => { sequence.current++; controller.current?.abort(); revokePendingDownloads(); };
   }, []);
   useEffect(() => () => { if (image) URL.revokeObjectURL(image.previewUrl); }, [image?.previewUrl]);
 
@@ -96,7 +99,7 @@ export function SimpleApp() {
     setSelected(fieldId);
   }
   return <div className="app-shell simple-app">
-    <header className="app-header"><a href="#" className="app-brand"><span className="brand-icon">▧</span>Privacy X-Ray</a><span className="local-pill">● Stays on your device</span></header>
+    <header className="app-header"><a href="/" className="app-brand" aria-label="Privacy X-Ray home"><span className="brand-icon" aria-hidden="true">▧</span>Privacy X-Ray</a><span className="local-pill">{desktop ? '● Desktop · Offline' : '● Stays on your device'}</span></header>
     <main className="app-main">
       <section className="app-intro"><p className="eyebrow">UPLOAD · SELECT · HIDE</p><h1>Choose what to hide.</h1><p>We find possible sensitive information. You choose what gets covered.</p></section>
       <input ref={input} type="file" accept="image/png,image/jpeg,image/webp,application/pdf" hidden onChange={event => {
@@ -113,7 +116,7 @@ export function SimpleApp() {
         <button className="app-button" disabled={loading} onClick={() => { void sampleImage('tuition').then(choose).catch(() => setError('The sample could not be opened.')); }}>Try a sample</button>
         <details className="simple-limits"><summary>File limits</summary><p>Images: up to 16 million pixels. PDF: one selected page at a time. WebP: one still frame. Convert HEIC, Office files and video before uploading.</p></details>
       </section> : <>
-        <div className="workspace-heading"><span>1. Your image</span><button className="app-button" disabled={loading} onClick={() => input.current?.click()}>Choose another file</button></div>
+        <div className="workspace-heading"><span>1. Your image</span><div className="simple-selection-actions"><button className="app-button" onClick={onClear}>Clear file</button><button className="app-button" disabled={loading} onClick={() => input.current?.click()}>Choose another file</button></div></div>
         {pdf && <PdfPageSelection page={pdf.page} total={pdf.total} disabled={busy} onOpen={number => void choose(pdf.file, number)} />}
         <div className="app-workspace simple-workspace"><section>
           <RedactionEditor image={image} masks={state.masks} highlights={state.fields} decisions={state.decisions}
@@ -157,13 +160,14 @@ export function SimpleApp() {
               void recognize(image);
             }}>Scan again</button>
             {state.ocr && <OcrTextReview ocr={state.ocr} findings={state.universalResult?.findings ?? []} masks={state.masks} onMask={boxes => boxes.forEach(rect => dispatch({ type: 'ADD_MANUAL_MASK', mask: { ...rect, id: crypto.randomUUID(), imageId: image.id, source: 'manual', shouldRedact: true } }))} />}
+            {state.universalResult?.coverage.warnings.some(w => w.includes('could not complete')) && <div role="alert" className="simple-error">Recognition is incomplete. {state.universalResult.coverage.warnings.filter(w => w.includes('could not complete')).map((w,i)=><p key={i}>{w}</p>)}</div>}
             <details className="simple-limits"><summary>What might be missed?</summary>{Math.max(image.width,image.height)>2000 && <p>Small text in very large images may still be missed. Check it before sharing.</p>}<p>Detection can miss text, handwriting, faces, signatures and background details. Check the whole image.</p>
               {state.universalResult?.coverage.warnings.map((warning, i) => <p key={i}>{warning}</p>)}
             </details>
           </>}
         </aside></div>
       </>}
-      <footer className="app-footer"><span>Processed on your device.</span><span>Check the image before sharing.</span></footer>
+      <footer className="app-footer"><span>{desktop ? 'App and models are bundled on your device. No internet connection is needed.' : 'Files are processed on your device. Loading the app and models uses the internet.'}</span><span>Clear file removes the current page session; downloaded files remain on your device.</span></footer>
     </main>
   </div>;
 }
