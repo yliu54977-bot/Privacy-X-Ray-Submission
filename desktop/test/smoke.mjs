@@ -6,12 +6,19 @@ import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import assert from 'node:assert/strict';
+import { createServer } from 'node:http';
 
 const require = createRequire(new URL('../package.json', import.meta.url));
 const temp = await mkdtemp(join(tmpdir(), 'privacy-xray-smoke-'));
+let requests = 0;
+const server = createServer((_req, res) => { requests++; res.end('unexpected network request'); });
+await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+const loopback = `http://127.0.0.1:${server.address().port}/`;
 const app = await electron.launch({ executablePath: require('electron'), args: [resolve('desktop/stage')], timeout: 60000 });
 try {
-  const page = await app.firstWindow();
+  console.log('Electron process launched.');
+  console.log(await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows().map(w => ({ url: w.webContents.getURL(), loading: w.webContents.isLoading() }))));
+  const page = await app.firstWindow({ timeout: 60000 });
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
   await expect(page.getByRole('heading', { name: 'Choose what to hide.', exact: true })).toBeVisible();
@@ -24,13 +31,15 @@ try {
   assert.deepEqual(isolation, { sandbox: true, node: false, isolated: true, persistent: false });
   assert.equal(await page.evaluate(() => typeof window.require), 'undefined');
   // Exercise the installed session interceptor, independently of renderer CSP.
-  const blocked = await app.evaluate(async ({ BrowserWindow }) => {
+  const blocked = await app.evaluate(async ({ BrowserWindow }, loopback) => {
     const ses = BrowserWindow.getAllWindows()[0].webContents.session;
-    return Promise.all(['https://example.invalid/', 'http://127.0.0.1:9/', 'file:///not-a-bundled-file'].map(async url => {
-      try { await ses.fetch(url); return false; } catch { return true; }
+    return Promise.all(['https://example.invalid/', loopback, 'file:///not-a-bundled-file'].map(async url => {
+      try { await ses.fetch(url, { signal: AbortSignal.timeout(5000) }); return false; } catch { return true; }
     }));
-  });
+  }, loopback);
   assert.deepEqual(blocked, [true, true, true]);
+  assert.equal(requests, 0, 'The installed request policy must block even a reachable loopback server.');
+  console.log('Runtime isolation and request blocking passed.');
   await app.context().setOffline(true);
   await page.getByRole('button', { name: 'Try a sample', exact: true }).click();
   await expect(page.getByRole('checkbox', { name: /Bank Account Number/i })).toBeVisible({ timeout: 120000 });
@@ -46,6 +55,7 @@ try {
     return Array.from(ctx.getImageData(Math.floor(box.x + box.width / 2), Math.floor(box.y + box.height / 2), 1, 1).data);
   }, box);
   assert.deepEqual(pixel, [0, 0, 0, 255]);
+  console.log('Offline OCR and opaque preview pixels passed.');
   const output = join(temp, 'redacted.png');
   await app.evaluate(({ BrowserWindow }, output) => {
     BrowserWindow.getAllWindows()[0].webContents.session.once('will-download', (_event, item) => item.setSavePath(output));
@@ -55,14 +65,17 @@ try {
   await page.getByRole('button', { name: 'Clear file', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Try a sample', exact: true })).toBeVisible();
 
+  console.log('PNG file download and clear passed.');
   await page.locator('input[type=file]').setInputFiles('tests/fixtures/public-face-portrait.jpg');
   await expect(page.getByRole('checkbox', { name: /Possible face region/i }).first()).toBeVisible({ timeout: 120000 });
   await page.getByRole('button', { name: 'Clear file', exact: true }).click();
+  console.log('Offline face model passed.');
   await page.locator('input[type=file]').setInputFiles('tests/fixtures/fictional-qr-email.png');
   await expect(page.getByRole('checkbox', { name: /QR/i }).first()).toBeVisible({ timeout: 120000 });
   await page.getByRole('link', { name: 'Privacy X-Ray home', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Try a sample', exact: true })).toBeVisible();
 
+  console.log('Offline QR detection and home navigation passed.');
   const content = 'BT /F1 28 Tf 40 250 Td (Email: sample@example.test) Tj ET';
   const objects = ['<< /Type /Catalog /Pages 2 0 R >>', '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
     '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 600 400] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>',
@@ -78,5 +91,6 @@ try {
   console.log('Native smoke passed: isolated session, request blocking, offline OCR/face/QR/PDF, opaque export, file download, clear and home. Native save dialog and OS-wide network capture remain manual checks.');
 } finally {
   await app.close();
+  await new Promise(resolve => server.close(resolve));
   await rm(temp, { recursive: true, force: true });
 }

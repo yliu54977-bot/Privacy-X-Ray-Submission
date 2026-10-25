@@ -18,7 +18,7 @@ test('remote, loopback, websocket and arbitrary disk requests are denied by the 
     handlers.request({ url }, value => { result = value; });
     assert.equal(result.cancel, true, url);
   }
-  for (const path of ['ocr/worker.min.js', 'vision/face-cpu/model.json', 'pdf/pdf.worker.min.mjs'])
+  for (const path of ['ocr/worker.min.js', 'vision/blaze_face_short_range.tflite', 'pdf/pdf.worker.min.mjs'])
     assert.equal(allowRequest(APP_URL + path), true);
   assert.equal(handlers.setPermissionCheckHandler(), false);
   assert.equal(handlers.setDevicePermissionHandler(), false);
