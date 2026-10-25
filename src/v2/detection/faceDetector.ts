@@ -1,3 +1,4 @@
+import { localAssetUrl } from '../../localAssets';
 import type { PrivacyDetector, UniversalFinding } from '../contracts';
 import type { PixelRect } from '../../types';
 
@@ -22,7 +23,7 @@ let model: Promise<import('@mediapipe/tasks-vision').FaceDetector> | undefined;
 async function localModel() {
   if (!model) model = (async () => {
     const { FaceDetector, FilesetResolver } = await import('@mediapipe/tasks-vision');
-    const base = new URL(`${import.meta.env.BASE_URL}vision/`, location.origin).href;
+    const base = localAssetUrl('vision/');
     return FaceDetector.createFromOptions(await FilesetResolver.forVisionTasks(`${base}wasm`), {
       baseOptions: { modelAssetPath: `${base}blaze_face_short_range.tflite`, delegate: 'CPU' },
       runningMode: 'IMAGE', minDetectionConfidence: 0.6,

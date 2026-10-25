@@ -6,7 +6,7 @@ Privacy X-Ray is a local image review and redaction tool for screenshots, identi
 
 **[Try in browser](https://privacy-xray-app.vercel.app/)** · **[Historical desktop preview](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/releases/tag/v0.1.0-desktop-test.1)** · **[Quick start](#quick-start)** · **[Privacy & security](#privacy--security)** · **[Development](#development)** · **[MIT license](LICENSE)**
 
-> **Source status:** This public repository currently contains the browser application. The historical desktop preview `v0.1.0-desktop-test.1` was built from development commit `24322bd222f1695a071b7a3a5c2477d88f430993`, whose desktop source is not included in this repository. Its ZIPs cannot be reproduced from this release's automatically generated source archives. Desktop source migration and a new public-source build are pending.
+> **Project status:** Browser app plus public desktop source, version `0.1.0-desktop-test.2`. Desktop packages must be built from this repository and identified by their public commit. The older `test.1` downloads below remain historical binaries and do not correspond to this source.
 
 ## Why Privacy X-Ray?
 
@@ -68,10 +68,10 @@ Recognition and redaction run on the user's device. The application has no file-
 | App and model resources | Bundled in the application | Loaded from the website's origin |
 | Image and PDF processing | Local | Local |
 | Network requirement | Designed to run offline after download | Requires network access to load the app and resources |
-| Runtime controls | Historical desktop package: sandbox and network restrictions reported by its original build | Hosting configuration varies; this source snapshot does not yet include the desktop/web hardening migration |
+| Runtime controls | Sandboxed renderer, local asset allowlist, remote requests/navigation/popups and device permissions blocked | Same-origin CSP and security headers in `vercel.json` |
 | Updates and telemetry | No automatic updater, analytics, or crash-upload service configured | Hosting may retain connection/access metadata |
 
-The historical desktop app loads bundled assets through `privacy-xray://app/`, without running an HTTP server. Its renderer has Node.js integration disabled, context isolation enabled, and no preload/IPC bridge.
+The desktop app loads bundled assets through `privacy-xray://app/`, without running an HTTP server. Its renderer has Node.js integration disabled, context isolation enabled, and no preload/IPC bridge.
 
 **Clear file** releases the application's references to the current file, results, and previews. It does not delete original files or saved exports, and it is not secure erasure of operating-system memory or storage.
 
@@ -103,17 +103,38 @@ npm run build
 npm run preview
 ```
 
-The web build is written to `dist/`. The hosted demo is currently deployed separately and is not yet verified to match this public source commit.
+The web build is written to `dist/`. Keep its generated `vercel.json` when uploading a static build. The hosted demo is deployed separately; its source version must be checked against the release notes.
 
-### Desktop source availability
+### Build the desktop app from public source
 
-`desktop/`, its lockfile and build scripts are not yet present on this branch. Do not use this repository to reproduce `v0.1.0-desktop-test.1`; that release is a historical binary mirror. A separate reviewed migration will add the desktop sources and native build workflow, followed by a new release built from an identified public commit. The historical tag and packages will be retained without replacement.
+From this repository root, after `npm ci`:
+
+```sh
+npm ci --prefix desktop
+npm run desktop:test
+npm run desktop:build
+npm run desktop:start
+```
+
+Package on the corresponding system:
+
+```sh
+# macOS with Apple Silicon
+npm run desktop:package -- darwin arm64
+# Windows x64
+npm run desktop:package -- win32 x64
+```
+
+The app, pinned models and PDF assets are staged in `desktop/stage/`. ZIPs and SHA-256 files are written to `desktop/releases/`. Each app includes `build-info.json` with its public repository and source commit. See [desktop instructions](desktop/README.md) and [native build CI](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/actions/workflows/desktop.yml).
+
+A clean checkout of the release tag is sufficient for a source build; no private repository, training dataset or private service is required. Build-time dependency downloads require internet access. Signatures and ZIP timestamps can vary between rebuilds; this is source reproducibility, not a claim of byte-identical artifacts.
 
 ### Validation
 
 ```sh
 npm run typecheck
 npm test
+npm run desktop:test
 
 # Install the browser once before browser tests
 npx playwright install chromium
@@ -123,7 +144,7 @@ npm run test:integration
 
 The public browser baseline passed **704 unit/component tests and 64 browser acceptance tests**. These are regression checks, not a general detection-accuracy benchmark. See [testing details](docs/testing.md) and the [public CI](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/actions).
 
-The historical desktop build reported 673 application tests and 8 desktop tests; those results belong to its original development source, not this browser snapshot. Native GUI startup, disconnected recognition, OS-level network monitoring and save dialogs still require target-platform validation.
+The native CI additionally launches the staged Electron app with networking disabled, checks OCR/face/QR/PDF processing, opaque preview pixels, saved PNG creation, Clear file and home navigation. It asserts renderer isolation and installed session request blocking. A completed green run is required before distributing its packages. Native save-dialog interaction, OS-level network capture and quarantined first launch remain manual checks.
 
 ## Architecture
 
@@ -135,11 +156,12 @@ The historical desktop build reported 673 application tests and 8 desktop tests;
 | [`src/features/export/`](src/features/export/) | PNG preview, opaque pixel redaction, and download |
 | [`src/features/documents/`](src/features/documents/) | Local PDF page rendering |
 | [`src/features/privacy/v2/`](src/features/privacy/v2/) | Contextual KEEP / MASK / REVIEW policy engine |
+| [`desktop/`](desktop/) | Isolated Electron runtime, asset manifest, native smoke tests and packaging |
 | [`tests/`](tests/) | Browser workflow and recognition regression tests |
 
 The default interface uses explicit user selection. The contextual policy engine and advanced review interface remain available in the codebase for integration and regression work; they do not automatically decide what the default interface hides.
 
-**Built with:** React, TypeScript, Vite, Tesseract.js, MediaPipe, jsQR, and PDF.js. Historical desktop packages additionally use Electron and other dependencies listed in their bundled notices. Validation uses Vitest and Playwright.
+**Built with:** React, TypeScript, Vite, Electron, Tesseract.js, MediaPipe, jsQR, and PDF.js. Validation uses Vitest and Playwright.
 
 ## Known limitations
 

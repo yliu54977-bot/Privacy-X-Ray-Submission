@@ -165,3 +165,16 @@ it('does not infer a cardholder from a distant name or a document heading elsewh
   expect(result.some(f=>f.label==='Possible cardholder name')).toBe(false);
   expect(result.some(f=>f.label==='Possible card expiry date')).toBe(true);
 });
+
+it.each(['4111 111111111111', '41111111 1111 1111', '4111-111111111111'])
+  ('recognizes Luhn-valid card numbers with merged OCR groups: %s', async value => {
+    const found = await documentPatternDetector.detect(input([value, 'ALEX MORGAN', '08/29', 'FICTIONAL BANK']));
+    expect(found.some(f => f.label === 'Possible payment card number' && f.value === value)).toBe(true);
+    expect(found.some(f => f.label === 'Possible cardholder name')).toBe(true);
+    expect(found.some(f => f.label === 'Possible card expiry date')).toBe(true);
+  });
+it.each(['4111 111111111112', '4111 1111 1111 1111 1234', '1234 4111 1111 1111 1111'])
+  ('does not accept an invalid or partial card number: %s', async value => {
+    const found = await documentPatternDetector.detect(input([value]));
+    expect(found.some(f => f.label === 'Possible payment card number')).toBe(false);
+  });

@@ -1,3 +1,4 @@
+import { localAssetUrl } from '../../localAssets';
 import { hasSidewaysText, orientationQuality } from './ocrOrientationQuality';
 import { rememberOcrOrientation } from './ocrOrientation';
 import { ocrDetailTiles, mergeDetailWords, wordsAsText, completeDetailWord } from './detailOcr';
@@ -61,7 +62,7 @@ export async function scanImage(
   signal: AbortSignal,
   options: ScanImageOptions = {},
 ): Promise<OcrResult> {
-  const base = new URL(`${import.meta.env.BASE_URL}ocr/`, location.origin).href;
+  const base = localAssetUrl('ocr/');
   const languages = options.mixedChineseEnglish ? ['eng', 'chi_sim'] : ['eng'];
   let passStart=0, passSpan=1, lastProgress=0;
   const report=(value:number)=>{lastProgress=Math.max(lastProgress,Math.max(0,Math.min(1,value)));onProgress(lastProgress);};

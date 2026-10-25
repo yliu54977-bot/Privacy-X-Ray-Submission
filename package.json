@@ -1,6 +1,6 @@
 {
   "name": "privacy-x-ray",
-  "version": "0.1.0",
+  "version": "0.1.0-desktop-test.2",
   "private": true,
   "type": "module",
   "engines": {
@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "vite",
     "typecheck": "tsc --noEmit",
-    "build": "npm run prepare:ocr && npm run typecheck && vite build",
+    "build": "npm run prepare:ocr && npm run typecheck && vite build && node scripts/prepare-deployment.mjs",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -19,7 +19,12 @@
     "benchmark:ocr": "playwright test tests/v2-benchmark.spec.ts",
     "test:browser:production": "playwright test --config playwright.production.config.ts",
     "prepare:test-fixtures": "node scripts/prepare-test-fixtures.mjs",
-    "test:integration": "playwright test tests/advanced-visual-review.spec.ts tests/v2-workflow.spec.ts tests/export.spec.ts tests/editor-integration.spec.ts tests/v2-qr.spec.ts tests/student-card-recognition.spec.ts tests/material-recognition.spec.ts tests/simple-workflow.spec.ts tests/expanded-recognition.spec.ts tests/face-precision.spec.ts tests/ocr-orientation.spec.ts tests/detail-ocr.spec.ts tests/address-recognition.spec.ts tests/card-layout-recognition.spec.ts --workers=2"
+    "test:integration": "playwright test tests/advanced-visual-review.spec.ts tests/v2-workflow.spec.ts tests/export.spec.ts tests/editor-integration.spec.ts tests/v2-qr.spec.ts tests/student-card-recognition.spec.ts tests/material-recognition.spec.ts tests/simple-workflow.spec.ts tests/expanded-recognition.spec.ts tests/face-precision.spec.ts tests/ocr-orientation.spec.ts tests/detail-ocr.spec.ts tests/address-recognition.spec.ts tests/card-layout-recognition.spec.ts --workers=2",
+    "desktop:build": "npm run prepare:ocr && npm run typecheck && tsc --project desktop/tsconfig.json && vite build --outDir dist-desktop && npm --prefix desktop run stage",
+    "desktop:test": "tsc --project desktop/tsconfig.json && npm --prefix desktop test",
+    "desktop:start": "npm --prefix desktop run start",
+    "desktop:package": "npm --prefix desktop run package",
+    "desktop:smoke": "node desktop/test/smoke.mjs"
   },
   "dependencies": {
     "@mediapipe/tasks-vision": "0.10.32",
@@ -34,6 +39,7 @@
   },
   "devDependencies": {
     "@playwright/test": "1.56.1",
+    "@types/node": "24.19.2",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "@vitejs/plugin-react": "6.1.2",
