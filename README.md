@@ -4,7 +4,7 @@
 
 Privacy X-Ray is a local image review and redaction tool for screenshots, identity documents, receipts, and PDF pages. It combines text, face, and code detection with an editable mask layer, then exports a PNG with the selected regions replaced by opaque black pixels.
 
-**[Download desktop](https://github.com/yliu54977-bot/Privacy-X-Ray/releases/tag/v0.1.0-desktop-test.1)** · **[Quick start](#quick-start)** · **[Privacy & security](#privacy--security)** · **[Development](#development)** · **[MIT license](LICENSE)**
+**[Download desktop](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/releases/tag/v0.1.0-desktop-test.1)** · **[Quick start](#quick-start)** · **[Privacy & security](#privacy--security)** · **[Development](#development)** · **[MIT license](LICENSE)**
 
 > **Project status:** Desktop preview — `v0.1.0-desktop-test.1`. Native Mac ARM64 and Windows x64 builds are available. This is a test release; signing, platform validation, and detection limitations are described below.
 
@@ -26,16 +26,16 @@ Recognition provides suggestions. **You control every mask**, and you can cover 
 
 ## Download
 
-Download the ZIP for your platform from the [desktop test release](https://github.com/yliu54977-bot/Privacy-X-Ray/releases/tag/v0.1.0-desktop-test.1). Each package has a matching `.sha256` checksum file.
+Download the ZIP for your platform from the [desktop test release](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/releases/tag/v0.1.0-desktop-test.1). Each package has a matching `.sha256` checksum file.
 
 | Platform | Package | Getting started |
 | --- | --- | --- |
-| macOS · Apple Silicon | [Mac ARM64 ZIP](https://github.com/yliu54977-bot/Privacy-X-Ray/releases/download/v0.1.0-desktop-test.1/Privacy-X-Ray-0.1.0-Mac-arm64-adhoc-test.zip) | Extract the ZIP and move `Privacy X-Ray.app` to Applications. |
-| Windows · x64 | [Windows x64 ZIP](https://github.com/yliu54977-bot/Privacy-X-Ray/releases/download/v0.1.0-desktop-test.1/Privacy-X-Ray-0.1.0-Windows-x64-test.zip) | Extract the complete ZIP and launch `Privacy X-Ray.exe`. Keep its companion files together. |
+| macOS · Apple Silicon | [Mac ARM64 ZIP](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/releases/download/v0.1.0-desktop-test.1/Privacy-X-Ray-0.1.0-Mac-arm64-adhoc-test.zip) | Extract the ZIP and move `Privacy X-Ray.app` to Applications. |
+| Windows · x64 | [Windows x64 ZIP](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/releases/download/v0.1.0-desktop-test.1/Privacy-X-Ray-0.1.0-Windows-x64-test.zip) | Extract the complete ZIP and launch `Privacy X-Ray.exe`. Keep its companion files together. |
 
 The desktop packages include the application, recognition models, and PDF resources. End users do not need Node.js or an API key.
 
-**Signing status:** The Mac package uses an ad-hoc signature and has not been notarized by Apple, so Gatekeeper may block it. The Windows package is not publisher-signed and may also show a security warning. See the [desktop guide](desktop/README.md) for details. Downloads require repository access while this repository is private.
+**Signing status:** The Mac package uses an ad-hoc signature and has not been notarized by Apple, so Gatekeeper may block it. The Windows package is not publisher-signed and may also show a security warning. See the [desktop guide](desktop/README.md) for details. Desktop ZIP downloads are publicly available from this repository's Releases. These packages mirror the desktop preview built from development commit `24322bd`; this repository's browser-app snapshot and auto-generated source archives are separate.
 
 ## Quick start
 
