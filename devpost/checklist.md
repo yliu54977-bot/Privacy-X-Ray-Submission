@@ -40,7 +40,7 @@ See [testing](../docs/testing.md) for commands and validation provenance.
 
 ## Submission preparation
 
-The submission repository is private during preparation. Making it public requires a separate owner instruction.
+The submission repository is now public. Review the [publication inventory](../docs/publication-review.md) before adding files; real user inputs, private datasets and credentials must stay outside this repository.
 
 - [ ] Confirm current competition eligibility, team requirements, deadlines and required deliverables against the official rules.
 - [ ] Confirm the final team/member attribution and each member's contribution.

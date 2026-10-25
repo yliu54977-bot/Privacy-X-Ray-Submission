@@ -19,3 +19,35 @@ pnpm-lock.yaml
 # Optional upstream test asset, never a bundled project image.
 /tests/fixtures/public-face-portrait.jpg
 .DS_Store
+
+# Private experiments and user inputs never belong in the submission repository.
+uploads/
+upload/
+private/
+personal/
+data/
+datasets/
+training/
+checkpoints/
+runs/
+wandb/
+*.pem
+*.key
+*.p12
+*.pfx
+*.sqlite*
+*.db
+*.csv
+*.jsonl
+*.parquet
+*.pkl
+*.pt
+*.pth
+*.safetensors
+*.zip
+*.tar
+*.gz
+.npmrc
+.netrc
+
+# Ignoring does not remove tracked files or erase public history.
