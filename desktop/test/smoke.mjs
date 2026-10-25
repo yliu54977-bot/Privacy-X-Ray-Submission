@@ -67,7 +67,7 @@ try {
 
   console.log('PNG file download and clear passed.');
   await page.locator('input[type=file]').setInputFiles('tests/fixtures/public-face-portrait.jpg');
-  await expect(page.getByRole('checkbox', { name: /Possible face region/i }).first()).toBeVisible({ timeout: 120000 });
+  await expect(page.getByRole('checkbox', { name: /face region/i }).first()).toBeVisible({ timeout: 120000 });
   await page.getByRole('button', { name: 'Clear file', exact: true }).click();
   console.log('Offline face model passed.');
   await page.locator('input[type=file]').setInputFiles('tests/fixtures/fictional-qr-email.png');
