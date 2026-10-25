@@ -168,9 +168,9 @@ export const documentPatternDetector: PrivacyDetector = {
               const below = first.box.y >= labelWord.box.y + labelWord.box.height * 0.65 &&
                 first.box.y - labelWord.box.y <= labelWord.box.height * 3 &&
                 Math.abs(first.box.x - labelWord.box.x) <= Math.max(60, input.imageWidth * 0.06);
-              const right = Math.abs(first.box.y + first.box.height / 2 - labelLast.box.y - labelLast.box.height / 2) <= Math.min(first.box.height, labelLast.box.height) * 0.5 &&
+              const right = hit.rule.id === 'balance' && Math.abs(first.box.y + first.box.height / 2 - labelLast.box.y - labelLast.box.height / 2) <= Math.min(first.box.height, labelLast.box.height) * 0.5 &&
                 first.box.x >= labelLast.box.x + labelLast.box.width &&
-                first.box.x - labelLast.box.x - labelLast.box.width <= input.imageWidth * (hit.rule.id === 'balance' ? 0.65 : 0.25);
+                first.box.x - labelLast.box.x - labelLast.box.width <= input.imageWidth * 0.65;
               return (below || right) && !documentLabelRules.some(rule => new RegExp(rule.labelPattern.source, 'i').test(candidate.text));
             }).sort((a,b) => a.words[0]!.word.box.y - b.words[0]!.word.box.y) : [];
           const next = candidates[0];

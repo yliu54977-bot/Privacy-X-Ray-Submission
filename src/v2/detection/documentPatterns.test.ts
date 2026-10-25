@@ -232,3 +232,8 @@ it('finds a transfer name below its label despite a tall nearby icon', async () 
     {id:'icon',lineId:'icon',text:'(3',confidence:0.3,box:{x:160,y:10,width:55,height:100}}]}});
   expect(findings.some(f=>f.value==='Taylor Chen')).toBe(true);
 });
+
+it('recognizes account ending digits when OCR reads masking stars as crosses', async () => {
+  const findings = await documentPatternDetector.detect(input(['Account ending ++++# 4821']));
+  expect(findings.some(f=>f.value==='++++# 4821')).toBe(true);
+});

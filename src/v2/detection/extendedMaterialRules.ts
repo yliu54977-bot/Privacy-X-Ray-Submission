@@ -15,7 +15,7 @@ export const extendedMaterialRules: readonly DocumentRule[] = [
   rule('card-number', 'Payment card number', 'financial_information', /\b(?:card\s*(?:number|no\.?|#)|pan)(?=\s*[:：#=])|卡\s*号/gi, /^[\d*Xx•][\d *Xx•-]{7,30}/),
   rule('card-owner', 'Cardholder name', 'personal_identity', /\b(?:cardholder|name\s*on\s*card|account\s*holder)(?:\s*name)?\b|户\s*名|开\s*户\s*人/gi),
   rule('bank-account', 'Bank account details', 'financial_information', /\b(?:(?:bank|checking|savings)\s*account(?:\s*(?:number|no\.?))?|account\s*(?:number|no\.?))\b|账\s*户\s*号\s*码/gi, id),
-  rule('account-ending', 'Account ending digits', 'financial_information', /\baccount\s*ending\b/gi, /^(?:[*Xx•e●]\s*)*\d{4}\b/),
+  rule('account-ending', 'Account ending digits', 'financial_information', /\baccount\s*ending\b/gi, /^(?:[*Xx•e●+#]\s*)*\d{4}\b/),
   rule('transfer-person', 'Transfer participant', 'personal_identity', /^\s*(?:from|to)\s*$/gi, identityText),
   rule('reference-code', 'Reference code', 'transactions_purchases', /\breference(?=\s*[:：])/gi, /^[A-Z]{2,8}-\d{4,20}\b/i),
   rule('shared-person', 'Location sharing recipient', 'personal_identity', /\bshared\s*with(?=\s*[:：])/gi, identityText),
