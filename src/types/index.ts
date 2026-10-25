@@ -33,21 +33,31 @@ export type RedactionRect =
   | (RedactionRectBase & { readonly source: 'recommendation'; readonly fieldId: string });
 
 export interface OcrWord {
+  /** Optional source-to-reading angle for locally recovered mixed-orientation text. */
+  readonly readingAngle?: number;
   readonly id: string;
   readonly lineId: string;
+  /** Optional OCR paragraph identity, used only for text selection. */
+  readonly groupId?: string;
   readonly text: string;
   readonly box: PixelRect;
+  /** Optional pixel-assisted masking extent, in original pixels. Never use for OCR deduplication. */
+  readonly coverageBox?: PixelRect;
   /** Normalized to 0..1 by A's OCR adapter; not a privacy correctness guarantee. */
   readonly confidence: number;
 }
 
 export interface OcrResult {
+  /** New scan identity; selection IDs must not survive rescans. */
+  readonly recognitionId?: string;
   readonly imageId: string;
   readonly width: number;
   readonly height: number;
   readonly language: string;
   readonly text: string;
   readonly words: readonly OcrWord[];
+  /** Reading rotation; boxes always remain in original decoded-image pixels. */
+  readonly readingAngle?: number;
 }
 
 export type PrivacyFieldType =

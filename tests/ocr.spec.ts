@@ -11,7 +11,7 @@ for (const sample of [
       url: request.url(), method: request.method(), body: request.postData(),
     }));
 
-    await page.goto('/'); await page.getByRole('button', { name: 'Classic review', exact: true }).click();
+    await page.goto('/?review=advanced'); await page.getByRole('button', { name: 'Classic review', exact: true }).click();
     await page.getByRole('button', { name: sample.button }).click();
     await page.getByRole('button', { name: 'Scan for Sensitive Information' }).click();
     const review = page.getByRole('region', { name: 'Privacy recommendations' });

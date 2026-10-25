@@ -6,7 +6,7 @@ const rotations=new WeakMap<OcrResult,OcrRotation>();
 export function rememberOcrOrientation(result:OcrResult,rotation:OcrRotation):OcrResult{
   if(rotation!=='none')rotations.set(result,rotation);return result;
 }
-export const ocrOrientation=(ocr:OcrResult|undefined):OcrRotation=>ocr?rotations.get(ocr)??'none':'none';
+export const ocrOrientation=(ocr:OcrResult|undefined):OcrRotation=>ocr ? rotations.get(ocr) ?? (ocr.readingAngle === 90 ? 'clockwise' : ocr.readingAngle === -90 ? 'counterclockwise' : Math.abs(ocr.readingAngle ?? 0) === 180 ? 'upsideDown' : 'none') : 'none';
 export function layoutBox(box:PixelRect,width:number,height:number,rotation:OcrRotation):PixelRect{
   if(rotation==='clockwise')return{x:height-box.y-box.height,y:box.x,width:box.height,height:box.width};
   if(rotation==='counterclockwise')return{x:box.y,y:width-box.x-box.width,width:box.height,height:box.width};

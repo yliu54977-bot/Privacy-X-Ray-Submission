@@ -1,10 +1,10 @@
 import { lazy, Suspense, useEffect, useReducer, useRef, useState } from 'react';
 import type { LocalImage } from './types';
-import { initialState, sessionReducer } from './state/sessionReducer';
+import { initialState, selectionSessionReducer } from './state/sessionReducer';
 import { RedactionEditor } from './features/editor';
 import { loadImage } from './features/image/loadImage';
 import { sampleImage } from './features/image/sampleImage';
-import { scanImageV2 } from './v2/detection/scanImageV2';
+import { scanContent } from './features/recognition/scanContent';
 import { detectUniversalPrivacy } from './v2/detection/detectUniversalPrivacy';
 import { openBrowserImagePixels } from './v2/detection/imagePixels';
 import { toEditorFields } from './v2/integration/toEditorFields';
@@ -21,7 +21,7 @@ export default function App() {
     ? <Suspense fallback={<p>Loading review…</p>}><AdvancedApp /></Suspense> : <SimpleApp />;
 }
 export function SimpleApp() {
-  const [state, dispatch] = useReducer(sessionReducer, { ...initialState, reviewMode: 'universal' as const });
+  const [state, dispatch] = useReducer(selectionSessionReducer, { ...initialState, reviewMode: 'universal' as const });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -54,9 +54,9 @@ export function SimpleApp() {
     dispatch({ type: 'SCAN_STARTED', imageId: target.id, requestId });
     setProgress(0); setStage('Reading text'); setError('');
     try {
-      const ocr = await scanImageV2(target, value => { if (!abort.signal.aborted) setProgress(value); }, abort.signal);
+      const ocr = await scanContent(target, value => { if (!abort.signal.aborted) setProgress(value); }, abort.signal);
       if (abort.signal.aborted) return;
-      setStage('Finding sensitive information');
+      setStage('Inspecting image regions');
       let pixels: Awaited<ReturnType<typeof openBrowserImagePixels>> | undefined;
       try { pixels = await openBrowserImagePixels(target, abort.signal); } catch { /* Coverage reports unavailable pixels. */ }
       let result;
@@ -64,11 +64,9 @@ export function SimpleApp() {
         imageHeight: target.height, ocr, ...(pixels ? { imagePixels: pixels } : {}) }); }
       finally { pixels?.dispose(); }
       if (abort.signal.aborted) return;
-      const fields = toEditorFields(result);
+      const fields = toEditorFields(result, ocr);
       dispatch({ type: 'SCAN_COMPLETED', imageId: target.id, requestId, ocr, fields, universalResult: result });
-      // Unchecked means visible. No policy or recipient decision is presented to the user.
-      // The existing reducer remains the owner of linked masks and preview invalidation.
-      for (const field of fields) dispatch({ type: 'UPDATE_FIELD_DECISION', imageId: target.id, fieldId: field.id, decision: 'KEEP' });
+      // Selection reducer starts every finding unchecked without invoking a policy.
     } catch {
       if (!abort.signal.aborted) dispatch({ type: 'SCAN_FAILED', imageId: target.id, requestId,
         error: 'Recognition could not finish. Try again or draw a mask over the image.' });
@@ -98,7 +96,7 @@ export function SimpleApp() {
   return <div className="app-shell simple-app">
     <header className="app-header"><a href="#" className="app-brand"><span className="brand-icon">▧</span>Privacy X-Ray</a><span className="local-pill">● Stays on your device</span></header>
     <main className="app-main">
-      <section className="app-intro"><p className="eyebrow">UPLOAD · SELECT · HIDE</p><h1>Choose what to hide.</h1><p>We find possible sensitive information. You choose what gets covered.</p></section>
+      <section className="app-intro"><p className="eyebrow">UPLOAD · SELECT · HIDE</p><h1>Choose what to hide.</h1><p>We recognize text and image regions. You choose what gets covered.</p></section>
       <input ref={input} type="file" accept="image/png,image/jpeg,image/webp,application/pdf" hidden onChange={event => {
         const file = event.target.files?.[0]; event.target.value = ''; if (file) void choose(file);
       }} />
@@ -140,7 +138,7 @@ export function SimpleApp() {
         </section><aside className="simple-selection" aria-label="Choose information to hide"><h2>2. What would you like to hide?</h2>
           {state.scan.status === 'running' ? <div role="status"><p>{stage}…</p><progress max={1} value={progress} aria-label="Recognition progress"/><p>First use loads local models. Your image is not uploaded.</p></div> : <>
             {state.scan.error && <p role="alert">{state.scan.error}</p>}
-            <p>{state.fields.length} possible sensitive items found. Check the ones you want to cover.</p>
+            <p>{state.fields.length} optional category or visual matches. All recognized text is selectable below.</p>
             <div className="simple-selection-actions"><button className="app-button" disabled={!state.fields.some(field => field.boxes.length)} onClick={() => state.fields.filter(field => field.boxes.length).forEach(field => selectField(field.id, true))}>Select all</button>
               <button className="app-button" disabled={!state.fields.some(field => state.decisions[field.id]?.action === 'MASK')} onClick={() => state.fields.forEach(field => selectField(field.id, false))}>Clear selection</button></div>
             {state.fields.length > 8 && <label className="simple-search">Find information<input type="search" value={query} onChange={event => setQuery(event.target.value)} /></label>}
@@ -149,14 +147,14 @@ export function SimpleApp() {
                 <span><strong>{field.label.replace(/^Possible /, '')}</strong><span className="simple-value">{field.value || 'Image region'}</span></span></label>
               {field.boxes.length ? <button type="button" className="simple-locate" aria-label={`Locate ${field.label}`} onClick={() => setSelected(field.id)}>Show</button> : <p>No exact location. Draw a mask over this information.</p>}
             </div>)}</div>
-            {!matching.length && <p>No matching items. You can still draw masks on the image.</p>}
+            {!matching.length && <p>No category matches. Review recognized text below or draw masks on the image.</p>}
             {pages > 1 && <nav aria-label="Finding pages"><button disabled={currentPage === 0} onClick={() => setPage(currentPage - 1)}>Previous</button><span> {currentPage + 1} / {pages} </span><button disabled={currentPage + 1 >= pages} onClick={() => setPage(currentPage + 1)}>Next</button></nav>}
             <button className="app-button" onClick={() => {
               if (activeMasks.some(mask => mask.source === 'recommendation') &&
                 !window.confirm('Scan again and reset your selected information? Manually drawn masks will stay.')) return;
               void recognize(image);
             }}>Scan again</button>
-            {state.ocr && <OcrTextReview ocr={state.ocr} findings={state.universalResult?.findings ?? []} masks={state.masks} onMask={boxes => boxes.forEach(rect => dispatch({ type: 'ADD_MANUAL_MASK', mask: { ...rect, id: crypto.randomUUID(), imageId: image.id, source: 'manual', shouldRedact: true } }))} />}
+            {state.ocr && <OcrTextReview key={state.scan.requestId} allContent ocr={state.ocr} findings={state.universalResult?.findings ?? []} masks={state.masks} onMask={boxes => boxes.forEach(rect => dispatch({ type: 'ADD_MANUAL_MASK', mask: { ...rect, id: crypto.randomUUID(), imageId: image.id, source: 'manual', shouldRedact: true } }))} />}
             <details className="simple-limits"><summary>What might be missed?</summary>{Math.max(image.width,image.height)>2000 && <p>Small text in very large images may still be missed. Check it before sharing.</p>}<p>Detection can miss text, handwriting, faces, signatures and background details. Check the whole image.</p>
               {state.universalResult?.coverage.warnings.map((warning, i) => <p key={i}>{warning}</p>)}
             </details>
