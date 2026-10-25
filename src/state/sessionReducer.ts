@@ -35,7 +35,6 @@ function defaults(
   context: PrivacyContext,
   generation: number,
   recommend: RecommendPrivacy,
-  selectionOnly: boolean,
 ): {
   recommendations: readonly PrivacyRecommendation[];
   decisions: Readonly<Record<string, FieldDecision>>;
@@ -43,8 +42,6 @@ function defaults(
 } {
   if (!state.image)
     return { recommendations: [], decisions: {}, linkedMasks: [] };
-  if (selectionOnly) return { recommendations: [], linkedMasks: [], decisions: Object.fromEntries(
-    fields.map(field => [field.id, { fieldId: field.id, imageId: field.imageId, action: 'KEEP' as const }])) };
   const recommendations = state.reviewMode === 'universal'
     ? state.universalResult && state.sharingContextV2
       ? toReducerRecommendations(state.universalResult,
@@ -59,18 +56,16 @@ function defaults(
   };
 }
 /** A owns transitions. C's pure policy can be supplied without changing shared actions. */
-export function createSessionReducer(recommend: RecommendPrivacy, options: { selectionOnly?: boolean } = {}) {
+export function createSessionReducer(recommend: RecommendPrivacy) {
   return (state: SessionState, action: SessionAction) =>
-    reduceSession(state, action, recommend, !!options.selectionOnly);
+    reduceSession(state, action, recommend);
 }
 
 function reduceSession(
   state: SessionState,
   action: SessionAction,
   recommend: RecommendPrivacy,
-  selectionOnly: boolean,
 ): SessionState {
-  if (selectionOnly && (action.type === 'CHANGE_CONTEXT' || action.type === 'APPLY_UNIVERSAL_CONTEXT')) return state;
   if (action.type === 'SELECT_REVIEW_MODE') {
     if (state.reviewMode === action.mode || state.scan.status === 'running') return state;
     if (!state.image) return { ...state, reviewMode: action.mode };
@@ -97,7 +92,7 @@ function reduceSession(
     const preset = legacyPreset(action.context);
     const nextRevision = state.revision + 1;
     const nextState = { ...state, sharingContextV2: action.context };
-    const next = defaults(nextState, state.fields, preset ?? state.context, nextRevision, recommend, selectionOnly);
+    const next = defaults(nextState, state.fields, preset ?? state.context, nextRevision, recommend);
     return { ...nextState, context: preset ?? state.context,
       recommendations: next.recommendations, decisions: next.decisions,
       masks: [...state.masks.filter(mask => mask.source === 'manual'), ...next.linkedMasks],
@@ -106,7 +101,7 @@ function reduceSession(
   if (action.type === "CHANGE_CONTEXT") {
     const nextRevision = state.revision + 1;
     const next = defaults(
-      state, state.fields, action.context, nextRevision, recommend, selectionOnly,
+      state, state.fields, action.context, nextRevision, recommend,
     );
     return {
       ...state,
@@ -124,7 +119,7 @@ function reduceSession(
   if (action.type === "RESET_CHANGES") {
     const nextRevision = state.revision + 1;
     const next = defaults(
-      state, state.fields, state.context, nextRevision, recommend, selectionOnly,
+      state, state.fields, state.context, nextRevision, recommend,
     );
     return {
       ...state,
@@ -187,7 +182,7 @@ function reduceSession(
       return state;
     const nextRevision = state.revision + 1;
     const next = defaults({ ...state, universalResult: action.universalResult ?? null },
-      action.fields, state.context, nextRevision, recommend, selectionOnly);
+      action.fields, state.context, nextRevision, recommend);
     return {
       ...state,
       scan: { status: "complete", requestId: null, error: null },
@@ -318,6 +313,3 @@ function invalidateUnlocatedMasks(state: SessionState): SessionState['decisions'
 
 /** Stable application reducer using C's approved pure context policy. */
 export const sessionReducer = createSessionReducer(recommendPrivacy);
-
-/** Selection UI: no policy engine is invoked; unchecked content remains visible. */
-export const selectionSessionReducer = createSessionReducer(() => [], { selectionOnly: true });
