@@ -98,7 +98,7 @@ const patterns: { id: string; label: string; categories: string[]; regex: RegExp
   { id: 'email', label: 'Email address', categories: ['contact_information','internet_identities'], regex: /(?<![\w.+-])[\w.+-]+\s*@\s*[A-Z0-9-]+(?:\s*\.\s*[A-Z0-9-]+)+/gi },
   { id: 'phone', label: 'Phone number', categories: ['contact_information'], regex: /(?<!\d)(?:\+\d{1,3}[ .-]?(?:\(?\d{2,4}\)?[ .-]?){2,4}\d{2,4}|\(?\d{3}\)?[-. ]\d{3}[-. ]\d{4}|1[3-9]\d{9})(?!\d)/g,
     accept: v => { const n = v.replace(/\D/g, '').length; return n >= 10 && n <= 15; } },
-  { id: 'card', label: 'Payment card number', categories: ['financial_information'], regex: /(?<!\d)(?:\d{4}[ -]\d{4}[ -]\d{4}[ -]\d{4}[ -]\d{3}|\d{4}[ -]\d{4}[ -]\d{4}[ -]\d{4}|\d{4}[ -]\d{6}[ -]\d{5}|\d{13,19})(?!\d)/g, accept: luhn },
+  { id: 'card', label: 'Payment card number', categories: ['financial_information'], regex: /(?<!\d)(?<!\d[ -])\d(?:[ -]?\d){12,18}(?![ -]?\d)/g, accept: luhn },
   { id: 'iban', label: 'IBAN account identifier', categories: ['financial_information'], regex: new RegExp('\\b(?:' + Object.entries(ibanLengths).map(([country, length]) =>
     `${country}\\d{2}(?:[ ]?[A-Z0-9]){${length - 4}}`).join('|') + ')(?![A-Z0-9])', 'g'), accept: validIban },
   { id: 'china-id', label: 'Chinese identity number', categories: ['government_identification'], regex: /(?<!\d)[1-9]\d{16}[\dX](?![\dA-Z])/gi, accept: validChineseId },

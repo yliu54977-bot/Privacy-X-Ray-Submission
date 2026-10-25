@@ -1,3 +1,4 @@
+import { localAssetUrl } from '../../localAssets';
 import { textSlopeCorrection } from './textSlope';
 import { orientationRegions, insideRegion } from './localOrientation';
 import { ocrDetailTiles, mergeDetailWords, wordsAsText, completeDetailWord } from './detailOcr';
@@ -120,7 +121,7 @@ export async function scanImage(
   signal: AbortSignal,
   options: ScanImageOptions = {},
 ): Promise<OcrResult> {
-  const base = new URL(`${import.meta.env.BASE_URL}ocr/`, location.origin).href;
+  const base = localAssetUrl('ocr/');
   const languages = options.mixedChineseEnglish ? ['eng', 'chi_sim'] : ['eng'];
   if (signal.aborted) throw new Error("Scan cancelled.");
   let canvas: HTMLCanvasElement | undefined;

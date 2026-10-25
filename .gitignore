@@ -51,3 +51,8 @@ wandb/
 .netrc
 
 # Ignoring does not remove tracked files or erase public history.
+
+# Generated desktop build and packaging output
+dist-desktop/
+desktop/stage/
+desktop/releases/
