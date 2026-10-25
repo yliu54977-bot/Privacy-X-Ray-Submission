@@ -97,3 +97,12 @@ await writeFile(`${visionDestination}/manifest.json`, JSON.stringify({ package: 
   model: 'BlazeFace short range float16 version 1', sha256: modelHash,
   source: 'https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite' }, null, 2));
 console.log('Prepared pinned same-origin face and PDF assets.');
+
+// Pinned CPU fallback uses the same-origin TensorFlow.js conversion of BlazeFace.
+await mkdir(`${visionDestination}/face-cpu`, { recursive:true });
+{ const data=await readFile(resolve('assets/models/face-cpu/group1-shard1of1.bin'));
+  if(createHash('sha256').update(data).digest('hex') !== 'e9b69ee1c1f8cd33c58120bcd75bf8c56bfba20c880f447e9d293ec102059d4b') throw new Error('CPU face model checksum does not match.');
+  await writeFile(`${visionDestination}/face-cpu/group1-shard1of1.bin`, data); }
+{ const data=await readFile(resolve('assets/models/face-cpu/model.json'));
+  if(createHash('sha256').update(data).digest('hex') !== 'c131145fade749f714d39811f282e973760a69cb9e1a9c22f91e132bd8dcd396') throw new Error('CPU face model checksum does not match.');
+  await writeFile(`${visionDestination}/face-cpu/model.json`, data); }

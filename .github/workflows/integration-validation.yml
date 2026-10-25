@@ -33,4 +33,6 @@ jobs:
         run: npm run test:integration
         env:
           CI: 'true'
+      - name: Verify face and OCR without WebGL
+        run: npm run test:headless-face
       # Keep screenshots/traces local. CI logs are still public: use fictional input only.

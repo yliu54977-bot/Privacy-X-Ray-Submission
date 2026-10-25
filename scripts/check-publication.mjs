@@ -6,6 +6,8 @@ import { pathToFileURL } from 'node:url';
 // This is a publication tripwire, not a complete PII/secret scanner.
 // Read the Git index, so ignored local files and unstaged edits cannot hide a staged leak.
 const approvedAssets = {
+  'assets/models/face-cpu/model.json': 'c131145fade749f714d39811f282e973760a69cb9e1a9c22f91e132bd8dcd396',
+  'assets/models/face-cpu/group1-shard1of1.bin': 'e9b69ee1c1f8cd33c58120bcd75bf8c56bfba20c880f447e9d293ec102059d4b',
   'assets/models/blaze_face_short_range.tflite': 'b4578f35940bf5a1a655214a1cce5cab13eba73c1297cd78e1a04c2380b0152f',
   'public/samples/order-inquiry.png': '789f04629413aa106739749be70c699aa4ab5b4cdfdade108d18481c2796ad44',
   'public/samples/tuition-payment.png': '3da2d6288e1d8f4db0b3ca258b8bb8b6d8da8d78075961037f0d83a26fd87132',
@@ -17,7 +19,7 @@ const roots = new Set(['src', 'tests', 'scripts', 'assets', 'public', 'docs', 'd
 const desktopFiles = new Set(["desktop/package.json", "desktop/package-lock.json", "desktop/tsconfig.json", "desktop/README.md", "desktop/runtime/policy.mjs", "desktop/runtime/assets.mjs", "desktop/runtime/main.mjs", "desktop/scripts/package.mjs", "desktop/scripts/stage.mjs", "desktop/scripts/mac-signing.mjs", "desktop/test/security.test.mjs", "desktop/test/mac-signing.test.mjs", "desktop/test/smoke.mjs"]);
 const rootFiles = new Set(['.gitignore', 'LICENSE', 'README.md', 'SECURITY.md', 'THIRD_PARTY_NOTICES.md',
   'package.json', 'package-lock.json', 'index.html', 'universal.html', 'tsconfig.json',
-  'vite.config.ts', 'playwright.config.ts', 'playwright.production.config.ts', 'vercel.json']);
+  'vite.config.ts', 'playwright.config.ts', 'playwright.production.config.ts', 'playwright.headless.config.ts', 'vercel.json']);
 const privateSegments = /(^|\/)(?:uploads?|private|personal|data|datasets?|training|train|fine[-_]?tuning|checkpoints?|runs|wandb|logs?|node_modules|dist(?:-desktop)?|stage|releases|coverage|test-results|playwright-report)(\/|$)/i;
 const textExtension = /\.(?:md|txt|ts|tsx|js|mjs|css|html|json|ya?ml|swift)$/i;
 const secretPatterns = [

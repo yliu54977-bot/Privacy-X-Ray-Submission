@@ -19,16 +19,32 @@ export function sameFaceRegion(a: PixelRect, b: PixelRect): boolean {
     Math.abs(a.x+a.width/2-b.x-b.width/2) <= Math.min(a.width,b.width)*0.35 &&
     Math.abs(a.y+a.height/2-b.y-b.height/2) <= Math.min(a.height,b.height)*0.35;
 }
-let model: Promise<import('@mediapipe/tasks-vision').FaceDetector> | undefined;
+type FaceModel = { maxTiles?:number; detect(pixels:ImageData): {detections: {boundingBox?: {originX:number;originY:number;width:number;height:number};categories: {score:number}[]}[]} | Promise<{detections: {boundingBox?: {originX:number;originY:number;width:number;height:number};categories: {score:number}[]}[]}> };
+let model: Promise<FaceModel> | undefined;
 async function localModel() {
   if (!model) model = (async () => {
     const { FaceDetector, FilesetResolver } = await import('@mediapipe/tasks-vision');
     const base = localAssetUrl('vision/');
-    return FaceDetector.createFromOptions(await FilesetResolver.forVisionTasks(`${base}wasm`), {
+    const primary = await FaceDetector.createFromOptions(await FilesetResolver.forVisionTasks(`${base}wasm`), {
       baseOptions: { modelAssetPath: `${base}blaze_face_short_range.tflite`, delegate: 'CPU' },
       runningMode: 'IMAGE', minDetectionConfidence: 0.6,
     });
-  })().catch(error => { model = undefined; throw error; });
+    let fallback: FaceModel | undefined;
+    return {
+      get maxTiles() { return fallback?.maxTiles; },
+      async detect(pixels: ImageData) {
+        if (fallback) return fallback.detect(pixels);
+        try { return primary.detect(pixels); }
+        catch {
+          // Some MediaPipe builds initialize successfully but require WebGL
+          // when detect() first processes pixels. Recover at both boundaries.
+          fallback = await (await import('./cpuFaceModel')).cpuFaceModel();
+          try { primary.close(); } catch { /* Already failed runtime. */ }
+          return fallback.detect(pixels);
+        }
+      },
+    };
+  })().catch(async () => (await import('./cpuFaceModel')).cpuFaceModel()).catch(error => { model = undefined; throw error; });
   return model;
 }
 
@@ -98,8 +114,8 @@ export const localFaceDetector: PrivacyDetector = {
     if (!input.imagePixels) return [];
     const detector = await localModel();
     const candidates: { box: PixelRect; score: number; turns: number }[] = [];
-    const detect = (pixels: ImageData, region: PixelRect, turns = 0) => {
-      const result = detector.detect(turns ? rotateFacePixels(pixels, turns) : pixels);
+    const detect = async (pixels: ImageData, region: PixelRect, turns = 0) => {
+      const result = await detector.detect(turns ? rotateFacePixels(pixels, turns) : pixels);
       for (const face of result.detections) {
         const score = face.categories[0]?.score ?? 0;
         if (!face.boundingBox || !Number.isFinite(score) || score < 0.6) continue;
@@ -110,7 +126,7 @@ export const localFaceDetector: PrivacyDetector = {
       }
     };
     for (const region of faceTiles(input.imageWidth, input.imageHeight)) {
-      detect(await input.imagePixels.readPixels(region), region);
+      await detect(await input.imagePixels.readPixels(region), region);
       // Yield between CPU passes so controls and progress remain responsive.
       await new Promise<void>(resolve => setTimeout(resolve, 0));
     }
@@ -120,8 +136,8 @@ export const localFaceDetector: PrivacyDetector = {
     const pixels = input.imageWidth * input.imageHeight <= 4_000_000
       ? await input.imagePixels.readPixels(region)
       : await faceOverview(input.imagePixels, input.imageWidth, input.imageHeight);
-    detect(pixels, region);
-    for (const turns of [1, 2, 3]) { detect(pixels, region, turns); await new Promise<void>(resolve => setTimeout(resolve, 0)); }
+    await detect(pixels, region);
+    for (const turns of [1, 2, 3]) { await detect(pixels, region, turns); await new Promise<void>(resolve => setTimeout(resolve, 0)); }
     const selected: typeof candidates = [];
     for (const candidate of candidates.sort((a, b) => b.score - a.score)) {
       if (selected.some(other => sameFaceRegion(candidate.box, other.box))) continue;
@@ -137,7 +153,7 @@ export const localFaceDetector: PrivacyDetector = {
         height: Math.min(input.imageHeight, Math.ceil(a.y + a.height * 1.2)) - top };
       if (crop.width * crop.height > 4_000_000) continue;
       const source = await input.imagePixels.readPixels(crop);
-      const confirmed = detector.detect(candidate.turns ? rotateFacePixels(source, candidate.turns) : source);
+      const confirmed = await detector.detect(candidate.turns ? rotateFacePixels(source, candidate.turns) : source);
       for (const face of confirmed.detections) {
         const score = face.categories[0]?.score ?? 0;
         if (!face.boundingBox || !Number.isFinite(score) || score < 0.8) continue;
