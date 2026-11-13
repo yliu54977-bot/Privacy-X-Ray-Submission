@@ -87,6 +87,71 @@ try {
   await page.locator('input[type=file]').setInputFiles({ name: 'fictional.pdf', mimeType: 'application/pdf', buffer: Buffer.from(pdf) });
   await expect(page.getByRole('region', { name: 'PDF page selection', exact: true })).toContainText('PDF page 1 of 1', { timeout: 30000 });
   await expect(page.getByRole('checkbox', { name: /Email/i }).first()).toBeVisible({ timeout: 120000 });
+
+  // Exercise the production bundle and custom asset scheme, not Vite source imports.
+  // Reload clears the cached primary detector before forcing both Canvas APIs off.
+  await page.addInitScript(() => {
+    for (const prototype of [HTMLCanvasElement.prototype, OffscreenCanvas.prototype]) {
+      const original = prototype.getContext;
+      Object.defineProperty(prototype, 'getContext', { value: function(type, ...args) {
+        if (type.includes('webgl') || type === 'experimental-webgl') return null;
+        return Reflect.apply(original, this, [type, ...args]);
+      } });
+    }
+  });
+  let fallbackLoaded = false;
+  page.on('requestfinished', request => {
+    if (request.url().endsWith('/vision/face-cpu/group1-shard1of1.bin')) fallbackLoaded = true;
+  });
+  await page.reload();
+  assert.equal(await page.evaluate(() => document.createElement('canvas').getContext('webgl')), null);
+  const portrait = (await readFile('tests/fixtures/public-face-portrait.jpg')).toString('base64');
+  const screenshot = await page.evaluate(async portrait => {
+    const canvas = document.createElement('canvas'); canvas.width = 1400; canvas.height = 1100;
+    const ctx = canvas.getContext('2d'); ctx.fillStyle = 'white'; ctx.fillRect(0, 0, 1400, 1100);
+    const image = new Image(); image.src = `data:image/jpeg;base64,${portrait}`; await image.decode();
+    ctx.drawImage(image, 220, 0, 400, 440, 1080, 650, 240, 264);
+    ctx.fillStyle = 'black'; ctx.font = '30px Arial';
+    for (const [text, x, y] of [
+      ['FICTIONAL SCREENSHOT', 60, 60], ['Tracking number', 60, 160], ['Out for delivery', 950, 165],
+      ['9400 1234 5678 9012 3456 78', 60, 210], ['Passenger', 60, 320], ['ALEX MORGAN', 60, 365],
+      ['Phone: +1 202-555-0186', 60, 460], ['17 Example Avenue', 850, 460], ['Unit 204, Demo City', 850, 505],
+      ['Email: alex.morgan@example.test', 60, 620], ['Account ending **** 4821', 60, 730],
+      ['Balance $860.25', 60, 820], ['Student ID: DEMO827364', 60, 950],
+    ]) ctx.fillText(text, x, y);
+    return canvas.toDataURL('image/png').split(',')[1];
+  }, portrait);
+  const started = Date.now();
+  await page.locator('input[type=file]').setInputFiles({ name: 'fictional-screenshot.png', mimeType: 'image/png', buffer: Buffer.from(screenshot, 'base64') });
+  for (const value of [/face region/i, /9400 1234 5678 9012 3456 78/, /ALEX MORGAN/, /alex.morgan@example.test/, /4821/, /860.25/, /DEMO827364/, /17 Example Avenue Unit 204, Demo City/])
+    await expect(page.getByRole('checkbox', { name: value }).first()).toBeVisible({ timeout: 120000 });
+  await expect(page.getByRole('checkbox', { name: /0186 17/ })).toHaveCount(0);
+  assert.equal(fallbackLoaded, true, 'The bundled CPU weights must load without WebGL.');
+  await expect(page.getByText(/Browser-local face regions could not complete/)).toHaveCount(0);
+  console.log(`No-WebGL screenshot face/OCR detection passed in ${Date.now() - started} ms.`);
+  await page.getByRole('button', { name: 'Select all', exact: true }).click();
+  const masks = await page.locator('.px-mask').evaluateAll(elements => elements.map(el =>
+    Object.fromEntries(['x', 'y', 'width', 'height'].map(key => [key, Number(el.getAttribute(key))]))));
+  assert.ok(masks.length >= 8, 'The screenshot must produce multiple selected masks.');
+  await page.getByRole('button', { name: 'Preview covered image', exact: true }).click();
+  await expect(preview).toBeVisible();
+  const screenshotOutput = join(temp, 'screenshot-redacted.png');
+  await app.evaluate(({ BrowserWindow }, output) => {
+    BrowserWindow.getAllWindows()[0].webContents.session.once('will-download', (_event, item) => item.setSavePath(output));
+  }, screenshotOutput);
+  await page.getByRole('button', { name: 'Download PNG', exact: true }).click();
+  await expect.poll(async () => { try { return (await readFile(screenshotOutput)).subarray(0, 8).toString('hex'); } catch { return ''; } }).toBe('89504e470d0a1a0a');
+  // Decode the saved file independently of the preview and verify every selected region's centre.
+  const savedPixels = await page.evaluate(async ({ png, masks }) => {
+    const image = new Image(); image.src = `data:image/png;base64,${png}`; await image.decode();
+    const canvas = document.createElement('canvas'); canvas.width = image.naturalWidth; canvas.height = image.naturalHeight;
+    const ctx = canvas.getContext('2d'); ctx.drawImage(image, 0, 0);
+    return { width: canvas.width, height: canvas.height, pixels: masks.map(box =>
+      Array.from(ctx.getImageData(Math.floor(box.x + box.width / 2), Math.floor(box.y + box.height / 2), 1, 1).data)) };
+  }, { png: (await readFile(screenshotOutput)).toString('base64'), masks });
+  assert.equal(savedPixels.width, 1400); assert.equal(savedPixels.height, 1100);
+  for (const pixel of savedPixels.pixels) assert.deepEqual(pixel, [0, 0, 0, 255]);
+  console.log('Screenshot import, field selection and saved opaque PNG passed.');
   assert.deepEqual(errors, []);
   console.log('Native smoke passed: isolated session, request blocking, offline OCR/face/QR/PDF, opaque export, file download, clear and home. Native save dialog and OS-wide network capture remain manual checks.');
 } finally {

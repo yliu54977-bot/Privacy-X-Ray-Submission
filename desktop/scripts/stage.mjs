@@ -11,6 +11,7 @@ const output = join(root, 'dist-desktop');
 // Fail before touching the previous stage if the web build is incomplete.
 for (const file of ['index.html', 'ocr/worker.min.js', 'ocr/eng.traineddata.gz',
   'ocr/chi_sim.traineddata.gz', 'vision/blaze_face_short_range.tflite',
+  'vision/face-cpu/model.json', 'vision/face-cpu/group1-shard1of1.bin',
   'pdf/pdf.worker.min.mjs'])
   await readFile(join(output, file));
 await rm(stage, { recursive: true, force: true });

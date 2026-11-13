@@ -6,7 +6,7 @@ Privacy X-Ray is a local image review and redaction tool for screenshots, identi
 
 **[Try in browser](https://privacy-xray-app.vercel.app/)** · **[Download desktop preview](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/releases/tag/v0.1.0-desktop-test.2)** · **[Quick start](#quick-start)** · **[Privacy & security](#privacy--security)** · **[Development](#development)** · **[MIT license](LICENSE)**
 
-> **Project status:** Browser app plus public desktop preview, version `0.1.0-desktop-test.2`. The desktop test.2 ZIPs were built from public commit [`ef4a612`](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/commit/ef4a6129796cb384ef5e44eefa7157352844dbc8). The hosted browser demo is updated separately from public main, including a pure CPU face fallback. This repository includes the desktop source, build scripts and native CI; no private repository is needed.
+> **Project status:** Desktop source version `0.1.0-desktop-test.3`; see the [test.3 changes and release checklist](docs/desktop-test-3.md). Until its release assets are published, the download links below remain on test.2, built from public commit [`ef4a612`](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/commit/ef4a6129796cb384ef5e44eefa7157352844dbc8). Source changes do not update existing ZIPs. The hosted browser demo is deployed separately. This repository includes the desktop source, build scripts and native CI; no private repository is needed.
 
 ## Why Privacy X-Ray?
 

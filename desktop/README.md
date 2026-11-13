@@ -4,6 +4,8 @@
 
 这是现有 Privacy X-Ray 的桌面迁移版。程序、OCR 中英文模型、人脸模型、二维码识别和条形码区域检测模块和 PDF 资源全部随应用提供。运行时不依赖 Vercel、不启动 HTTP 服务器，不需要安装 Node.js。
 
+test.3 源码纳入截图 OCR 补扫与合并修复，以及无 WebGL 时的本地 CPU 人脸检测回退。旧 test.2 ZIP 不会自动更新；请根据 Release 的版本、提交来源与校验和区分下载包。详见 [test.3 更新范围与验收](../docs/desktop-test-3.md)。
+
 - Windows x64：完整解压下载包，双击 `Privacy X-Ray.exe`。不要只移动 EXE，旁边的资源必须保留。
 - Mac Apple Silicon：使用 **在 macOS 上构建并签名** 的 `.app`。将其移到 Applications 后打开。
 - 旧的 `unsigned-unverified` Mac 包已停止作为可用安装包交付：用户实测出现“已损坏”启动拦截。构建脚本现在拒绝在非 macOS 环境生成 Mac 包。
@@ -54,6 +56,8 @@ npm run desktop:package -- linux x64
 [公开桌面构建工作流](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/actions/workflows/desktop.yml) 在 PR、main 推送和手动触发时运行 macOS ARM64 / Windows x64 原生构建。它先检查公开内容边界，再执行应用测试、桌面安全测试、构建和原生自动化验收，最后上传 ZIP、校验和与提交来源。不会自动发布 Release 或部署网站。测试截图、输入文件和日志目录不打包上传。
 
 `npm run prepare:test-fixtures && npm run desktop:smoke` 会使用独立下载并校验的公开人像以及虚构材料进行原生自动化验收。网络在浏览器会话层禁用；自动保存使用固定临时路径，不能替代人工点击系统保存对话框。安装包内的 `build-info.json` 标识公开源码提交，`LICENSE` 与第三方声明随包提供。发布必须使用 main 上通过验证的构建；历史 `test.1` 包不会被替换。
+
+test.3 还会在同一原生应用中禁用 HTMLCanvas 和 OffscreenCanvas 的 WebGL，确认打包的 CPU 模型权重被加载、人脸与截图字段同时出现，并检查实际保存的 PNG 尺寸和全部选中遮挡区域中心的不透明黑色像素。这不是全图隐私覆盖率或通用性能基准。
 
 此迁移保留 Submission 的识别实现：QR 可解析，条形码仅检测区域，不宣称与历史开发版的解码器功能完全相同。
 
