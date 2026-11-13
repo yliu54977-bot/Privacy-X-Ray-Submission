@@ -4,9 +4,9 @@
 
 Privacy X-Ray is a local image review and redaction tool for screenshots, identity documents, receipts, and PDF pages. It combines text, face, and code detection with an editable mask layer, then exports a PNG with the selected regions replaced by opaque black pixels.
 
-**[Try in browser](https://privacy-xray-app.vercel.app/)** · **[Download desktop preview](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/releases/tag/v0.1.0-desktop-test.2)** · **[Quick start](#quick-start)** · **[Privacy & security](#privacy--security)** · **[Development](#development)** · **[MIT license](LICENSE)**
+**[Try in browser](https://privacy-xray-app.vercel.app/)** · **[Download desktop preview](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/releases/tag/v0.1.0-desktop-test.3)** · **[Quick start](#quick-start)** · **[Privacy & security](#privacy--security)** · **[Development](#development)** · **[MIT license](LICENSE)**
 
-> **Project status:** Desktop source version `0.1.0-desktop-test.3`; see the [test.3 changes and release checklist](docs/desktop-test-3.md). Until its release assets are published, the download links below remain on test.2, built from public commit [`ef4a612`](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/commit/ef4a6129796cb384ef5e44eefa7157352844dbc8). Source changes do not update existing ZIPs. The hosted browser demo is deployed separately. This repository includes the desktop source, build scripts and native CI; no private repository is needed.
+> **Project status:** Public desktop preview `0.1.0-desktop-test.3`, built from public commit [`46499d4`](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/commit/46499d4bc3728d7d6f81aeba4d1f115f9505b300). It includes screenshot OCR fixes and a bundled CPU face fallback. See the [test.3 changes and validation](docs/desktop-test-3.md). The hosted browser demo is deployed separately. This repository includes the desktop source, build scripts and native CI; no private repository is needed.
 
 ## Why Privacy X-Ray?
 
@@ -26,12 +26,12 @@ Recognition provides suggestions. **You control every mask**, and you can cover 
 
 ## Download
 
-Download the [public-source desktop preview](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/releases/tag/v0.1.0-desktop-test.2). Each ZIP has a matching `.sha256` checksum file; `BUILD-PROVENANCE.json` records its public source commit and native build run. Choose a platform ZIP below; GitHub's auto-generated **Source code** archives are for developers.
+Download the [public-source desktop preview](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/releases/tag/v0.1.0-desktop-test.3). Each ZIP has a matching `.sha256` checksum file; `BUILD-PROVENANCE.json` records its public source commit and native build run. Choose a platform ZIP below; GitHub's auto-generated **Source code** archives are for developers.
 
 | Platform | Package | Getting started |
 | --- | --- | --- |
-| macOS 13+ · Apple M series | [Mac ARM64 ZIP](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/releases/download/v0.1.0-desktop-test.2/Privacy-X-Ray-0.1.0-desktop-test.2-Mac-arm64-adhoc-test.zip) | Extract the ZIP and move `Privacy X-Ray.app` to Applications. |
-| Windows · x64 | [Windows x64 ZIP](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/releases/download/v0.1.0-desktop-test.2/Privacy-X-Ray-0.1.0-desktop-test.2-Windows-x64-test.zip) | Extract the complete ZIP and launch `Privacy X-Ray.exe`. Keep its companion files together. |
+| macOS 13+ · Apple M series | [Mac ARM64 ZIP](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/releases/download/v0.1.0-desktop-test.3/Privacy-X-Ray-0.1.0-desktop-test.3-Mac-arm64-adhoc-test.zip) | Extract the ZIP and move `Privacy X-Ray.app` to Applications. |
+| Windows · x64 | [Windows x64 ZIP](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/releases/download/v0.1.0-desktop-test.3/Privacy-X-Ray-0.1.0-desktop-test.3-Windows-x64-test.zip) | Extract the complete ZIP and launch `Privacy X-Ray.exe`. Keep its companion files together. |
 
 **Mac compatibility:** Use the same ARM64 ZIP for Apple M-series Macs, including Pro, Max and Ultra variants. It requires macOS 13 Ventura or later and does not support Intel Macs. The package architecture and minimum OS version have been verified; each chip/device combination has not been individually tested.
 
@@ -39,7 +39,7 @@ The desktop packages include the application, recognition models, and PDF resour
 
 **Signing status:** The Mac package uses an ad-hoc signature and has not been notarized by Apple, so Gatekeeper may block it. The Windows package is not publisher-signed and may also show a security warning. Native CI verifies Mac signatures, but downloaded/quarantined first launch remains a manual check. Do not disable global OS security protections to run a preview.
 
-**Historical release:** [`test.1`](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/releases/tag/v0.1.0-desktop-test.1) remains unchanged and was built from private development commit `24322bd`. Use `test.2` for packages whose corresponding desktop source and build workflow are available in this public repository.
+**Historical release:** [`test.1`](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/releases/tag/v0.1.0-desktop-test.1) remains unchanged and was built from private development commit `24322bd`. The public-source `test.2` release also remains unchanged; use `test.3` for the current OCR fixes and CPU face fallback.
 
 ## Quick start
 
@@ -145,9 +145,9 @@ npm run test:integration
 npm run test:headless-face
 ```
 
-The desktop migration passed **718 unit/component tests, 8 desktop security tests, 7 publication-boundary tests and 64 browser acceptance tests**. See the [native build run](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/actions/runs/40161265403), [browser validation](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/actions/runs/40161265393) and [testing details](docs/testing.md). These are regression checks, not a general detection-accuracy benchmark. The browser run needed one retry after a touch-emulation assertion failed; the migration PR's identical source tree also passed all 64 checks.
+Desktop test.3 passed **735 unit/component tests, 8 desktop security tests per platform, 7 publication-boundary tests, 65 browser integration tests and 1 no-WebGL face/OCR test**. See the [native build run](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/actions/runs/43477783369), [browser validation](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/actions/runs/43477783366) and [test.3 validation details](docs/desktop-test-3.md). Both runs passed on the published source commit `46499d4`. These are regression checks, not a general detection-accuracy benchmark.
 
-The native CI additionally launches the staged Electron app with networking disabled, checks OCR/face/QR/PDF processing, opaque preview pixels, saved PNG creation, Clear file and home navigation. It asserts renderer isolation and installed session request blocking. A completed green run is required before distributing its packages. Native save-dialog interaction, OS-level network capture and quarantined first launch remain manual checks.
+The native CI additionally launches the staged Electron app with networking disabled, checks OCR/face/QR/PDF processing, opaque preview pixels, saved PNG creation, Clear file and home navigation. It also disables WebGL, verifies bundled CPU model loading with screenshot OCR, and checks the dimensions and selected-mask centre pixels of the saved PNG. It asserts renderer isolation and installed session request blocking. A completed green run is required before distributing its packages. Native save-dialog interaction, OS-level network capture and quarantined first launch remain manual checks.
 
 ## Architecture
 
@@ -164,13 +164,13 @@ The native CI additionally launches the staged Electron app with networking disa
 
 The default interface uses explicit user selection. The contextual policy engine and advanced review interface remain available in the codebase for integration and regression work; they do not automatically decide what the default interface hides.
 
-**Built with:** React, TypeScript, Vite, Electron, Tesseract.js, MediaPipe, jsQR, and PDF.js. Validation uses Vitest and Playwright.
+**Built with:** React, TypeScript, Vite, Electron, Tesseract.js, MediaPipe, TensorFlow.js, jsQR, and PDF.js. Validation uses Vitest and Playwright.
 
 ## Known limitations
 
 - Detection can miss or misread text, faces, codes, handwriting, signatures, or background details. A detected-item count is not proof that all private information was found.
 - Small, rotated, blurred, low-contrast, or unusual layouts can reduce recognition quality. Review the full output and add manual masks as needed.
-- The web app falls back to a bundled pure CPU face detector when MediaPipe initialization or detection fails, including environments without WebGL. CPU fallback can be slower. If both runtimes fail, inspect detector warnings and manually cover missed faces. Existing test.2 desktop downloads predate this fallback.
+- Desktop test.3 and the current web source fall back to a bundled pure CPU face detector when MediaPipe initialization or detection fails, including environments without WebGL. CPU fallback can be slower. If both runtimes fail, inspect detector warnings and manually cover missed faces. Existing test.2 desktop downloads predate this fallback.
 - Redaction protects only the pixels you cover. Information elsewhere in the image can still reveal identity or context.
 - The current desktop release is a preview, not an independently audited or fully platform-certified product.
 

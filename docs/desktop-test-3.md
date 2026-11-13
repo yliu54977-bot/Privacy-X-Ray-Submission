@@ -1,8 +1,23 @@
 # Desktop preview test.3
 
-Source version: `0.1.0-desktop-test.3`. This page records the release scope;
-it is not evidence that downloadable packages have already been published.
-The Release page and its BUILD-PROVENANCE.json identify the actual packages.
+Published prerelease: [`v0.1.0-desktop-test.3`](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/releases/tag/v0.1.0-desktop-test.3).
+The Mac ARM64 and Windows x64 ZIPs were built from public commit
+[`46499d4`](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/commit/46499d4bc3728d7d6f81aeba4d1f115f9505b300).
+Matching `.sha256` files and `BUILD-PROVENANCE.json` are attached to the Release.
+
+## Completed automated validation
+
+- [Browser run](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/actions/runs/43477783366):
+  735 application tests, typecheck/build, 7 publication tests, 65 integration tests
+  and 1 no-WebGL face/OCR test passed.
+- [Native build run](https://github.com/yliu54977-bot/Privacy-X-Ray-Submission/actions/runs/43477783369):
+  Mac ARM64 and Windows x64 passed 8 desktop tests each, offline smoke including
+  no-WebGL screenshot recognition and saved-PNG checks, native architecture
+  checks and packaging. Mac code signature verification passed.
+- Downloaded archive SHA-256, bundled source commit/version and all 239 bundled
+  asset hashes per platform were verified, including both CPU face model files.
+- The earlier PR run on Ubuntu 26.04 failed before browser tests; pinning the
+  runner to supported Ubuntu 24.04 resolved that environment incompatibility.
 
 ## Changes from test.2
 
