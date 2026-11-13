@@ -18,6 +18,8 @@ The Release page and its BUILD-PROVENANCE.json identify the actual packages.
 - Require both CPU model files during desktop staging; retain pinned checksums.
 - Add native production-bundle regression coverage for no-WebGL face plus OCR,
   screenshot selection and opaque saved-PNG pixels on Mac ARM64 and Windows x64.
+- Pin browser CI to Ubuntu 24.04, supported by the locked Playwright version;
+  ubuntu-latest moved to an unsupported Ubuntu 26.04 image.
 - Keep the intentional PR #2 revert. This version does not restore that PR's
   all-text selection workflow. No new detector training or private data is included.
 
